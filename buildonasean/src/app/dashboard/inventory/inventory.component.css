@@ -1,0 +1,38 @@
+.d-flex {
+    display: flex;
+    margin-right: 2px;
+}
+
+.mr-5 {
+    margin-right: 50px;
+}
+
+.ml-5 {
+    margin-left: 50px
+}
+
+.mat-row .mat-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  cursor: pointer;
+}
+
+.mat-row:hover .mat-cell {
+  border-color: currentColor;
+}
+
+.demo-table {
+    width: 100%;
+  }
+  
+.mat-column-name {
+    padding-left: 16px;
+    border-right: 1px solid black;
+    font-size: 20px;
+}
+  
+.mat-column-qty {
+    padding-left: 16px;
+    font-size: 20px;
+}
+  

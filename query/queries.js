@@ -37,6 +37,12 @@ const getAllHospitals = (request, response) => {
     })
 }
 
+const getUser = (request, response) => {
+    
+
+    pool.query('SELECT * FROM users WHERE ')
+}
+
 module.exports = {
     getInventoryByHospitalId,
     getAllHospitals
