@@ -13,12 +13,12 @@ export class HospitalService {
   //Retrieve by hospital_id
   getHospitals(): Observable<Hospital[]>
   {
-   return this.http.get<Hospital[]>(`http://192.168.1.172:1500/api/hospitals`)
+   return this.http.get<Hospital[]>(`http://54.151.176.214:3000/api/hospitals`)
   }
 
   getInventory(hospitalId:Number, date: String) 
   {
-    return this.http.get<Inventory[]>(`http://192.168.1.172:1500/api/inventory/${hospitalId}/${date}`)
+    return this.http.get<Inventory[]>(`http://54.151.176.214:3000/api/inventory/${hospitalId}/${date}`)
   }
 
 }

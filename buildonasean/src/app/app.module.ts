@@ -22,6 +22,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
+import { LoginComponent } from './login/login.component';
+/* Add Amplify imports */
+import { AmplifyUIAngularModule } from '@aws-amplify/ui-angular';
 
 @NgModule({
   declarations: [
@@ -30,7 +33,8 @@ import { MatButtonModule } from '@angular/material/button';
     CardComponent,
     NavComponent,
     InventoryComponent,
-    BurnrateComponent
+    BurnrateComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -48,7 +52,8 @@ import { MatButtonModule } from '@angular/material/button';
     AppRoutingModule,
     HttpClientModule,
     LayoutModule,
-    MatButtonModule
+    MatButtonModule,
+    AmplifyUIAngularModule
   ],
   providers: [],
   bootstrap: [AppComponent]

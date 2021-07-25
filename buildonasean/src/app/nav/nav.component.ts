@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import Auth from '@aws-amplify/auth';
 
 @Component({
   selector: 'app-nav',
@@ -12,6 +13,7 @@ import { RouterLink } from '@angular/router';
 export class NavComponent {
 
   menuItems = ['dashboard', 'supplier'];
+  loggedIn: boolean = false;
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(
@@ -19,6 +21,21 @@ export class NavComponent {
       shareReplay()
     );
 
-  constructor(private breakpointObserver: BreakpointObserver) {}
+  constructor(private breakpointObserver: BreakpointObserver, private router: Router) {}
+
+  logged() {
+    this.loggedIn = true;
+  }
+
+  onLogOut() {
+    Auth.signOut()
+      .then(data => {
+        console.log(data);
+        console.log("You are successfully logged out");
+        this.loggedIn = false;
+        this.router.navigate(['/']);
+      })
+      .catch(err => console.log(err));
+  }
 
 }

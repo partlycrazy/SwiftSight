@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-buildonasean-dev-191009-authRole",
+      "UnauthRoleArn": "arn:aws:iam::971815345049:role/amplify-buildonasean-dev-191009-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::971815345049:role/amplify-buildonasean-dev-191009-authRole",
+      "Region": "ap-southeast-1",
+      "DeploymentBucketName": "amplify-buildonasean-dev-191009-deployment",
+      "UnauthRoleName": "amplify-buildonasean-dev-191009-unauthRole",
+      "StackName": "amplify-buildonasean-dev-191009",
+      "StackId": "arn:aws:cloudformation:ap-southeast-1:971815345049:stack/amplify-buildonasean-dev-191009/e1940da0-ed38-11eb-bbf2-0aad8e4c5320",
+      "AmplifyAppId": "d3sh5wgp5xa3gm"
+    },
+    "categories": {
+      "auth": {
+        "buildonaseanf23061f5": {}
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<mat-sidenav-container class="sidenav-container">
+<app-login *ngIf="!loggedIn"></app-login>
+<button (click)="logged()">Log In Already!</button>
+<mat-sidenav-container *ngIf="loggedIn" class="sidenav-container">
   <mat-sidenav #drawer class="sidenav" fixedInViewport
       [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
       [mode]="(isHandset$ | async) ? 'over' : 'side'"
@@ -21,6 +23,7 @@
       </button>
       <img src="../../assets/logo.png" style="width:60px; height:60px"> <span>SwiftSight</span>
       
+      <button (click)="onLogOut()">Logout</button>
     </mat-toolbar>
     <div style="background-color: #145da0;">
       <span style="padding-right: 16px"></span>
