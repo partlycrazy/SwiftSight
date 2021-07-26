@@ -13,10 +13,9 @@ const
 //app.use(express.static('public'));
 var app = express();
 
-app.set('port', process.env.PORT || 3000);
 app.use(cors());
 
-app.listen(process.env.PORT || 3000, "192.168.1.172", () => console.log('server is listening'));
+app.listen(process.env.PORT || 3000, process.env.IP_ADDR || "192.168.1.172", () => console.log('server is listening'));
 
 app.get('/api/inventory/:hospital_id/:date', db.getInventoryByHospitalId);
 
