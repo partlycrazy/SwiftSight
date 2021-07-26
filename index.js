@@ -20,3 +20,5 @@ app.listen(process.env.PORT || 3000, process.env.IP_ADDR || "192.168.1.172", () 
 app.get('/api/inventory/:hospital_id/:date', db.getInventoryByHospitalId);
 
 app.get('/api/hospitals', db.getAllHospitals);
+
+app.get('/api/suppliers', db.getAllSuppliers);

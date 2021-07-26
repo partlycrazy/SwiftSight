@@ -9,7 +9,7 @@
   <!-- User Sign In -->
 
   <div class="row sign-in row-center">
-    <form class="col-sm-6">
+    <form #loginForm class="col-sm-6" (keyup.enter)="signInToAWS(username, password); loginForm.reset()">
       <div class="input-group">
         <span class="icon">
           <mat-icon>account_circle</mat-icon>
@@ -28,7 +28,7 @@
         </div>
       </div>
       <div class="input-field">
-        <button type="button" class="btn" (click)="signInToAWS(username, password)">Sign In</button>
+        <button type="button" class="btn" (click)="signInToAWS(username, password); loginForm.reset()" >Sign In</button>
       </div>
     </form>
   </div>

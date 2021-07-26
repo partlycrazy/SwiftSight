@@ -2,14 +2,14 @@ import { Component, NgModule, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 import { Hospital, Inventory } from './inventory/inventory';
-import { HospitalService } from '../hospital.service';
+import { APIService } from '../api.service';
 import { FormGroup, FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  providers: [HospitalService]
+  providers: [APIService]
 })
 export class DashboardComponent implements OnInit {
   /** Based on the screen size, switch from standard to one column per row */
@@ -44,7 +44,7 @@ export class DashboardComponent implements OnInit {
     end: new FormControl()
   });
 
-  constructor(private breakpointObserver: BreakpointObserver, private hospitalService: HospitalService) {}
+  constructor(private breakpointObserver: BreakpointObserver, private hospitalService: APIService) {}
 
   ngOnInit(): void {
     this.hospitalService.getHospitals().subscribe((results: any) => {

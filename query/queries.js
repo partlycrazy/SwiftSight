@@ -37,6 +37,17 @@ const getAllHospitals = (request, response) => {
     })
 }
 
+// api/suppliers
+const getAllSuppliers = (request, response) => {
+    pool.query('SELECT * FROM suppliers WHERE id <> 0', (err, results) => {
+        if (err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+        }
+        response.status(200).json(results.rows);
+    })
+}
+
 const getUser = (request, response) => {
     
 
@@ -45,5 +56,6 @@ const getUser = (request, response) => {
 
 module.exports = {
     getInventoryByHospitalId,
-    getAllHospitals
+    getAllHospitals,
+    getAllSuppliers
 }

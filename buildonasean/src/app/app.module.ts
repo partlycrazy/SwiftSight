@@ -26,6 +26,8 @@ import { LoginComponent } from './login/login.component';
 
 /* Add Amplify imports */
 import { LoginService } from './login.service';
+import { SupplierComponent } from './supplier/supplier.component';
+import { CdkDetailRowDirective } from './supplier/cdk-detail-row.directive';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,8 @@ import { LoginService } from './login.service';
     NavComponent,
     InventoryComponent,
     BurnrateComponent,
-    LoginComponent
+    LoginComponent,
+    SupplierComponent
   ],
   imports: [
     BrowserModule,

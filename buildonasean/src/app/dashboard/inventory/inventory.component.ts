@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, Output, EventEmitter, ViewChild } from '@angular/core';
-import { HospitalService } from '../../hospital.service';
+import { APIService } from '../../api.service';
 import { Inventory } from './inventory';
 import { MatTable } from '@angular/material/table';
 
@@ -7,7 +7,7 @@ import { MatTable } from '@angular/material/table';
   selector: 'dashboard-inventory',
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.css'],
-  providers: [HospitalService]
+  providers: [APIService]
 })
 export class InventoryComponent implements OnInit, OnChanges{
 
@@ -21,7 +21,7 @@ export class InventoryComponent implements OnInit, OnChanges{
 
   @ViewChild(MatTable) table: MatTable<Inventory>;
 
-  constructor(private hospitalService: HospitalService) { }
+  constructor(private hospitalService: APIService) { }
 
   ngOnInit(): void {
   }
