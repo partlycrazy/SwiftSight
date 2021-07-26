@@ -1,30 +1,37 @@
  
-// import { Injectable } from '@angular/core';
-// import { Router } from '@angular/router';
-// import { Auth } from 'aws-amplify';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { Auth } from 'aws-amplify';
+import { Subject } from 'rxjs';
 
 
-// @Injectable()
-// export class LoginService {
+@Injectable()
+export class LoginService {
 
-//   authenticated: boolean = false;
+    private authenticatedSource: Subject<Boolean> = new Subject<Boolean>();
 
-//     constructor(public router: Router) {
-//     }
+    authenticated$ = this.authenticatedSource.asObservable();
 
-//     public getProfile() {
-//         return Auth.currentAuthenticatedUser();
-//     }
+    constructor(public router: Router) {
+    }
 
-//     public retrieveIdToken() {
-//         return Auth.currentCredentials();
-//     }
+    public getCurrentUser() {
+        return Auth.currentAuthenticatedUser();
+    }
 
-//     public retrieveAccessToken() {
-//         return Auth.currentCredentials();
-//     }
+    authenticated(auth: Boolean) {
+        this.authenticatedSource.next(auth);
+    }
 
-//     public logout() {
-//       Auth.signOut();
-//     }
-// }
+    public getProfile() {
+        return Auth.currentAuthenticatedUser();
+    }
+
+    public retrieveIdToken() {
+        return Auth.currentCredentials();
+    }
+
+    public retrieveAccessToken() {
+        return Auth.currentCredentials();
+    }
+}

@@ -23,8 +23,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
 import { LoginComponent } from './login/login.component';
+
 /* Add Amplify imports */
-import { AmplifyUIAngularModule } from '@aws-amplify/ui-angular';
+import { LoginService } from './login.service';
 
 @NgModule({
   declarations: [
@@ -52,10 +53,9 @@ import { AmplifyUIAngularModule } from '@aws-amplify/ui-angular';
     AppRoutingModule,
     HttpClientModule,
     LayoutModule,
-    MatButtonModule,
-    AmplifyUIAngularModule
+    MatButtonModule
   ],
-  providers: [],
+  providers: [LoginService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
