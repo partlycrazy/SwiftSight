@@ -1,47 +1,47 @@
 import { Component, Input, OnInit, OnChanges, Output, EventEmitter, ViewChild } from '@angular/core';
-import { HospitalService } from '../../hospital.service';
-import { Inventory } from './inventory';
-import { MatTable } from '@angular/material/table';
+import { APIService } from '../../api.service';
+import { Hospital, Inventory } from './inventory';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'dashboard-inventory',
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.css'],
-  providers: [HospitalService]
+  providers: [APIService]
 })
-export class InventoryComponent implements OnInit, OnChanges{
+export class InventoryComponent implements OnInit, OnChanges {
 
-  @Input() hospitalId: number;
+  @Input() hospital: Hospital;
   @Input() date: Date;
   @Output() selectedInventoryEvent = new EventEmitter<Inventory>();
 
-  items: Inventory[] = []
+  // items = new MatTableDataSource<Inventory>();
 
   columnsToDisplay = ['name', 'qty'];
 
   @ViewChild(MatTable) table: MatTable<Inventory>;
 
-  constructor(private hospitalService: HospitalService) { }
+  constructor(private hospitalService: APIService) { }
 
   ngOnInit(): void {
+    // this.items.data = this.hospital.items;
   }
 
   ngOnChanges(): void {
-    console.log(`Changed Hospital ID is ${this.hospitalId}`);
-    if (this.date == null || this.hospitalId == null) {
-      return;
-    }
-    this.items=[];
-    this.hospitalService.getInventory(this.hospitalId, this.date.toISOString()).subscribe((results: any) => {
-      results.forEach((item: any)=> {
-        let newItem: Inventory = {
-          id: item.item_id,
-          name: item.item_name,
-          qty: item.total
-        }
-        this.items = [...this.items, newItem];
-      })
-    });
+    // console.log("Changing Hospital")
+    // this.items= new MatTableDataSource<Inventory>();
+    // this.hospitalService.getInventory(this.hospital.id, this.date.toISOString()).subscribe((results: any) => {
+    //   console.log(results);
+    //   results.forEach((item: any)=> {
+    //     let newItem: Inventory = {
+    //       id: item.item_id,
+    //       name: item.item_name,
+    //       qty: item.total
+    //     }
+    //     this.items.data = [...this.items.data, newItem];
+    //   })
+    // });
+    // this.hospital.items = this.items.data;
   }
 
   selectInventory(value: Inventory) {

@@ -14,6 +14,7 @@ import { LoginService } from '../login.service';
 export class NavComponent {
 
   menuItems = ['dashboard', 'supplier'];
+  adminItems = ['settings', 'logout'];
   loggedIn: Boolean = false;
   
   subscription: Subscription;
