@@ -22,3 +22,5 @@ app.get('/api/inventory/:hospital_id/:date', db.getInventoryByHospitalId);
 app.get('/api/hospitals', db.getAllHospitals);
 
 app.get('/api/suppliers', db.getAllSuppliers);
+
+app.get('/api/suppliers/:itemID', db.getSuppliersByItemId);

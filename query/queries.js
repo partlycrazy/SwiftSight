@@ -48,6 +48,22 @@ const getAllSuppliers = (request, response) => {
     })
 }
 
+// api/suppliers/:itemID
+
+const getSuppliersByItemId = (request, response) => {
+    const item_id = parseInt(request.params.itemID);
+    
+    pool.query('SELECT DISTINCT id, name FROM supply left join suppliers \
+                ON supply.supplier_id = suppliers.id \
+                WHERE item_id = $1', [item_id], (err, results) => {
+                    if (err) {
+                        console.log(err)
+                        response.status(400).json("ERROR");
+                    }
+                    response.status(200).json(results.rows);
+                })
+}
+
 const getUser = (request, response) => {
     
 
@@ -57,5 +73,6 @@ const getUser = (request, response) => {
 module.exports = {
     getInventoryByHospitalId,
     getAllHospitals,
-    getAllSuppliers
+    getAllSuppliers,
+    getSuppliersByItemId
 }

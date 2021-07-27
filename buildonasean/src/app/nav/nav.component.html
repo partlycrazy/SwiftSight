@@ -9,7 +9,8 @@
       <a *ngFor="let item of menuItems" mat-list-item [routerLink]="'/'+item"> {{ item | titlecase }} </a>
     </mat-nav-list>
     <mat-nav-list class="logout-button">
-      <a mat-list-item (click)="onLogOut()">Logout</a>
+      <a mat-list-item [routerLink]="'/settings'"> Settings </a>
+      <a mat-list-item (click)="onLogOut()"> Logout </a>
     </mat-nav-list>    
   </mat-sidenav>
   <mat-sidenav-content>

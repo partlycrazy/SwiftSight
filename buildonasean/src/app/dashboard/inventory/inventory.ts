@@ -1,7 +1,7 @@
 export interface Hospital {
     id: number;
     name: string;
-    items: Array<Inventory>
+    items: Inventory[];
 }
 
 export interface Inventory {
