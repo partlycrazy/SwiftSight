@@ -1,0 +1,10 @@
+<div style="display: block;">
+    <canvas baseChart 
+                [datasets]="lineChartData"
+                [labels]="lineChartLabels"
+                [options]="lineChartOptions"
+                [colors]="lineChartColors"
+                [legend]="lineChartLegend"
+                [chartType]="lineChartType"></canvas>
+    <h1 *ngIf="lineChartData.length === 0">No Items Selected</h1>
+</div>

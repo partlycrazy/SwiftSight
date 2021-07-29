@@ -1,14 +1,17 @@
+.grid-container {
+  margin: 20px;
+}
+
 .d-flex {
-    display: flex;
-    margin-right: 2px;
+  display: flex;
 }
 
 .mr-5 {
-    margin-right: 50px;
+  margin-right: 50px;
 }
 
 .ml-5 {
-    margin-left: 50px
+  margin-left: 50px
 }
 
 .mat-row .mat-cell {
@@ -16,6 +19,29 @@
   border-top: 1px solid transparent;
   cursor: pointer;
 }
+
+.dashboard-card {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+.more-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+.dashboard-card-content {
+  text-align: center;
+}
+
 
 .mat-row:hover .mat-cell {
   border-color: currentColor;
@@ -35,4 +61,8 @@
     padding-left: 16px;
     font-size: 20px;
 }
-  
+
+.is-clicked {
+  font-weight: bold;
+  background-color: #f5f5f5;
+}

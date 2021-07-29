@@ -4,30 +4,27 @@ import { RouterModule } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { CardComponent } from './card/card.component';
-import { NavComponent } from './nav/nav.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { CardComponent } from './shared/components/card/card.component';
+import { NavComponent } from './core/nav/nav.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { InventoryComponent } from './dashboard/inventory/inventory.component';
 import { MatTableModule } from '@angular/material/table';
-import { BurnrateComponent } from './dashboard/burnrate/burnrate.component';
+import { BurnrateComponent } from './components/dashboard/burnrate/burnrate.component';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatButtonModule } from '@angular/material/button';
-import { LoginComponent } from './login/login.component';
-
-/* Add Amplify imports */
-import { LoginService } from './login.service';
-import { SupplierComponent } from './supplier/supplier.component';
-import { CdkDetailRowDirective } from './supplier/cdk-detail-row.directive';
+import { LoginComponent } from './components/login/login.component';
+import { LoginService } from './core/authentication/authentication.service';
+import { SupplierComponent } from './components/supplier/supplier.component';
+import { ChartsModule } from 'ng2-charts';
 
 @NgModule({
   declarations: [
@@ -35,7 +32,6 @@ import { CdkDetailRowDirective } from './supplier/cdk-detail-row.directive';
     DashboardComponent,
     CardComponent,
     NavComponent,
-    InventoryComponent,
     BurnrateComponent,
     LoginComponent,
     SupplierComponent
@@ -56,7 +52,8 @@ import { CdkDetailRowDirective } from './supplier/cdk-detail-row.directive';
     AppRoutingModule,
     HttpClientModule,
     LayoutModule,
-    MatButtonModule
+    MatButtonModule,
+    ChartsModule
   ],
   providers: [LoginService],
   bootstrap: [AppComponent]

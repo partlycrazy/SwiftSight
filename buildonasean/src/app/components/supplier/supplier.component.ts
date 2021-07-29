@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { APIService } from '../api.service';
-import { Supplier } from './supplier';
+import { APIService} from "../../core/http/api.service"
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Hospital, Inventory } from '../dashboard/inventory/inventory';
-import { LoginService } from '../login.service';
-import { InventoryComponent } from '../dashboard/inventory/inventory.component';
-import { FindValueSubscriber } from 'rxjs/internal/operators/find';
+import { Hospital, Inventory, Supplier } from '../../shared/interfaces';
+import { LoginService } from '../../core/authentication/authentication.service';
 
 @Component({
   selector: 'app-supplier',
@@ -160,6 +157,8 @@ export class SupplierComponent implements OnInit {
   }
 
 }
+
+
 
 export interface SupplierTab {
   item: Inventory,

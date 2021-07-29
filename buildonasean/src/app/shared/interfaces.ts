@@ -9,3 +9,10 @@ export interface Inventory {
     name: string;
     qty: number;
 }
+
+export interface Supplier {
+    id: number;
+    name: string;
+    expanded: boolean;
+    item_id: number;
+}

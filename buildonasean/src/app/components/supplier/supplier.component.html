@@ -1,25 +1,28 @@
 <div *ngIf="admin">
-    Active Hospital ID : {{ activeHospital.id }} 
+    Active Hospital ID : {{ activeHospital.id }}
 
     <button (click)="increment()"> Increase ID</button>
     <button (click)="decrement()"> Decrease ID</button>
 </div>
-<form>
+
 <div class="grid-container">
-    <mat-card *ngFor="let source of dataSource; let i = index">
-        <p name="source.item.name" class="item-name"> {{ source.item.name }} | Qty : {{ source.item.qty}} | Days Left: NO DATA </p>
+    <header>Supplier Panel</header>
+    <mat-card *ngFor="let source of dataSource; let i = index" class="supplier-card">
+        <p name="source.item.name" class="item-name"> {{ source.item.name }} | Qty : {{ source.item.qty}} | Days
+            Left: NO DATA </p>
         <table mat-table [dataSource]="source.supplier" class="mat-elevation-z8 supplier-table" multiTemplateDataRows>
 
             <ng-container matColumnDef="{{def.key}}" *ngFor="let def of tableDef">
-                <th mat-header-cell *matHeaderCellDef> 
+                <th mat-header-cell *matHeaderCellDef>
                     <div *ngIf="def.key != 'icon'">
                         {{def.header}}
-                    </div> </th>
+                    </div>
+                </th>
                 <td mat-cell *matCellDef="let element">
                     <div *ngIf="def.key == 'icon'">
-                            <mat-icon>
-                                {{ expandedElement !==element ? 'keyboard_arrow_left' : 'keyboard_arrow_down' }}
-                            </mat-icon>
+                        <mat-icon>
+                            {{ element.expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_left' }}
+                        </mat-icon>
                     </div>
                     {{element[def.key]}}
                 </td>
@@ -28,10 +31,9 @@
             <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
             <ng-container matColumnDef="expandedDetail">
                 <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplay.length">
-                    <div class="supplier-element-detail"
-                        [@detailExpand]="element.expanded ? 'expanded' : 'collapsed'">
+                    <div class="supplier-element-detail" [@detailExpand]="element.expanded ? 'expanded' : 'collapsed'">
                         <div class="example-element-description">
-                            {{element.name}} ==== NEED TO 
+                            {{element.name}} ==== NEED TO
                             Insert Address, Contact Info, Etc ===
                             <span class="example-element-description-attribution"> -- Wikipedia </span>
                         </div>
@@ -40,18 +42,10 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-            <!-- <tr mat-row *matRowDef="let element; columns: columnsToDisplay;" class="supplier-row"
-                [class.example-expanded-row]="expandedElement === element"
-                (click)="expandedElement = expandedElement === element ? null : element"
-                >
-            </tr> -->
             <tr mat-row *matRowDef="let element; columns: columnsToDisplay;" class="supplier-row"
-                [class.example-expanded-row]="expandedElement === element"
-                (click)="expandRow(element)"
-                >
+                [class.example-expanded-row]="expandedElement === element" (click)="expandRow(element)">
             </tr>
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="supplier-detail-row"></tr>
         </table>
     </mat-card>
 </div>
-</form>

@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Hospital, Inventory } from './dashboard/inventory/inventory';
-import { Supplier } from './supplier/supplier';
+import { Hospital, Inventory, Supplier } from '../../shared/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +30,7 @@ export class APIService {
 
   getSupplierByItemId(itemID: number): Observable<Supplier[]>  
   {
-    return this.http.get<Supplier[]>(`http://192.168.1.172:3000/api/suppliers/${itemID}`)
+    return this.http.get<Supplier[]>(`http://54.151.176.214:3000/api/suppliers/${itemID}`)
   }
 
 }

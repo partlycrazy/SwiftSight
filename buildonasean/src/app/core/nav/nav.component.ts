@@ -2,9 +2,8 @@ import { Component } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable, Subscription } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
-import { Router, RouterLink } from '@angular/router';
-import Auth from '@aws-amplify/auth';
-import { LoginService } from '../login.service';
+import { Router } from '@angular/router';
+import { LoginService } from '../authentication/authentication.service';
 
 @Component({
   selector: 'app-nav',
@@ -32,14 +31,7 @@ export class NavComponent {
   }
 
   onLogOut() {
-    Auth.signOut()
-      .then(data => {
-        console.log(data);
-        console.log("You are successfully logged out");
-        this.loginService.authenticated(false);
-        this.router.navigate(['/']);
-      })
-      .catch(err => console.log(err));
+    this.loginService.signout();
   }
 
 }

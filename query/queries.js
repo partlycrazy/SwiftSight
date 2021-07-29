@@ -12,6 +12,12 @@ const pool = new Pool({
 // api/inventory/:hospital_id/:date
 const getInventoryByHospitalId = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
     const date = request.params.date;
 
 
@@ -52,6 +58,10 @@ const getAllSuppliers = (request, response) => {
 
 const getSuppliersByItemId = (request, response) => {
     const item_id = parseInt(request.params.itemID);
+
+    if (isNaN(item_id)) {
+        response.status(400).json("ERROR NOT INT");
+    }
     
     pool.query('SELECT DISTINCT id, name FROM supply left join suppliers \
                 ON supply.supplier_id = suppliers.id \
