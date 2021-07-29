@@ -29,6 +29,9 @@ export class BurnrateComponent implements OnInit, OnChanges {
         {
           id: 'y-axis-0',
           position: 'left',
+          ticks: {
+            beginAtZero: true
+          }
         }
       ]
     },
@@ -72,15 +75,12 @@ export class BurnrateComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log("Burnrate Detect Change");
     this.lineChartData = [];
     this.lineChartDataOriginal.forEach(dataGroup => {      
       if (this.activeItem.has(dataGroup.label)) {
         this.lineChartData.push(dataGroup);
       }
     });
-    console.log(changes.activeItem.currentValue);
-    console.log(this.lineChartData.length);
   }
 
   ngOnDestroy() {
@@ -108,11 +108,6 @@ export class BurnrateComponent implements OnInit, OnChanges {
       case dateAmountType.YEARS:
         return dt.setFullYear( dt.getFullYear() + amount) && dt;
     }
-  }
-
-  hideOne() {
-    this.lineChartData.splice(1, 1);
-    // this.chart.hideDataset(1, true);
   }
 }
 

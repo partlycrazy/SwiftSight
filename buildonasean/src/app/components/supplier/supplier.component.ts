@@ -22,6 +22,7 @@ export class SupplierComponent implements OnInit {
     this.activeHospital.id = loginService.hospitalID;
     if (loginService.hospitalID == 0) {
       this.admin = true;
+      this.activeHospital.id = 1;
     }
   }
 
@@ -33,6 +34,7 @@ export class SupplierComponent implements OnInit {
     name:  null,
     items: new Array<Inventory>()
   }
+  oldHospitalId: number = 0;
 
   dataSource: Array<SupplierTab> = [];
 
@@ -62,6 +64,7 @@ export class SupplierComponent implements OnInit {
   columnsToDisplay = ['id', 'name', 'supply', 'avgDelivery', 'icon'];
 
   async loadInventory() {
+    this.activeHospital.id = this.activeHospital.id === 0 ? 1 : this.activeHospital.id;
     var results: any = await this.APIService.getInventory(this.activeHospital.id, new Date().toISOString()).toPromise();
     results.forEach((item: any) => {
       let newItem: Inventory = {
@@ -75,55 +78,74 @@ export class SupplierComponent implements OnInit {
 
   async loadSupplier(itemID: number): Promise<Supplier[]> {
     var results: Supplier[] = await this.APIService.getSupplierByItemId(itemID).toPromise(); 
-    console.log("supplier results", results);
     return results; 
   }
 
   async init() {
     await this.loadInventory();
-    console.log(this.dataSource);
+    
     var sortedArray: Inventory[] = this.activeHospital.items.sort((item1, item2) => item1.qty - item2.qty);
-
     this.activeHospital.items = sortedArray
-    let i = 1;
-    sortedArray.forEach(async (item) => {
-      let supplierDataSource = new Array<Supplier>();      
-      var supplier: any = await this.loadSupplier(item.id);
-      supplier.forEach((s : Supplier) => {
+    for (let i = 0; i < sortedArray.length; i++) {
+      let supplierDataSource = new Array<Supplier>();
+      let supplier: any = await this.loadSupplier(sortedArray[i].id);
+      supplier.forEach((s: Supplier) => {
         let newSSource: Supplier = {
           id: s.id,
           name: s.name,
           expanded: false,
-          item_id: item.id
+          item_id: sortedArray[i].id
         }
         supplierDataSource = [...supplierDataSource, newSSource]
-      })
+      });
       let newSource: SupplierTab = {
-        item: item,
+        item: sortedArray[i],
         supplier: supplierDataSource
       }
-      i++;
       this.dataSource = [...this.dataSource, newSource];
       console.log(this.dataSource);
-    })
+    }
   }
 
   ngOnInit(): void {
     this.init();
-    console.log(this.dataSource)
   }
 
   deleteAll(i: number) {
     this.dataSource.splice(i, 1);
-    console.log(this.dataSource);
   }
 
+  changeDetected: boolean = false;
+
+  // ngDoCheck() {
+  //   console.log(this.oldHospitalId);
+
+  //   if (this.oldHospitalId !== this.activeHospital.id) {
+  //     console.log("Changed");
+  //     this.changeDetected = true;
+  //     // this.dataSource.length = 0;
+  //     // this.oldHospitalId = this.activeHospital.id
+  //   }
+
+  //   if (this.changeDetected) {
+  //     this.dataSource.length = 0;
+  //     console.log("CHANGES MADE");
+  //   }
+  //   this.changeDetected = false;
+  // }
+
   increment() {
-    this.dataSource = new Array<SupplierTab>();
+    this.oldHospitalId = this.activeHospital.id;
+    
+    let newHospital: Hospital = this.activeHospital;
     if (this.activeHospital.id != 2) {
       this.activeHospital.id++;
-      this.init();
-    }    
+    }
+    // this.dataSource = new Array<SupplierTab>();
+    // if (this.activeHospital.id != 2) {
+    //   this.activeHospital.id++;
+    //   this.init();
+    // }    
   }
 
   decrement() {
@@ -138,8 +160,6 @@ export class SupplierComponent implements OnInit {
   }
 
   expandRow(elem: Supplier) {
-    console.log("Trying to expand");
-    console.log(elem);
     this.dataSource.forEach((supplier) => {
       if (supplier.item.id == elem.item_id) {
         supplier.supplier.map((v) => {
@@ -149,18 +169,13 @@ export class SupplierComponent implements OnInit {
           return v;
         })
       }
-      // supplier.supplier.map((v) => {
-          
-      // })
     })
 
   }
 
 }
 
-
-
-export interface SupplierTab {
+interface SupplierTab {
   item: Inventory,
   supplier: Supplier[]
 }

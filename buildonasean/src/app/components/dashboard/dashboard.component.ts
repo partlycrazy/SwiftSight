@@ -79,6 +79,7 @@ export class DashboardComponent implements OnInit {
       })
       this.selectInventory(this.activeHospital.items[0]);
     })    
+    this.selected = new Set();
   }
 
   selectInventory(value: Inventory) {
