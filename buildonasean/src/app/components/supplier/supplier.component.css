@@ -5,13 +5,12 @@
   width:100%;
 }
 
-.mat-column-id {
+/* .mat-column-name {
   width: 32px;
   border-right: 1px solid currentColor;
   padding-right: 24px;
   text-align: center;
-  font-size: 16px;
-}
+} */
 
 .mat-column-icon {
   width: 32px;
@@ -23,17 +22,22 @@
 
 .mat-column-name {
   padding-left: 16px;
+  border-right: 1px solid black;
   font-size: 16px;
+  text-align: center;
+  width: 250px;
 }
 
 .mat-column-avgDelivery {
   padding-left: 16px;
   font-size: 16px;
+  text-align: center;
 }
 
-.mat-column-supply {
-  padding-left: 16px;
+.mat-column-max_production {
+  padding-left: 30px;
   font-size: 16px;
+  width: 250px;
 }
 
 .supplier-row {

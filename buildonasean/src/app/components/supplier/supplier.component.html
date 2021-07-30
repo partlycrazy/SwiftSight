@@ -7,12 +7,12 @@
 
 <div class="grid-container">
     <header>Supplier Panel</header>
-    <mat-card *ngFor="let source of dataSource; let i = index" class="supplier-card">
+    <mat-card *ngFor="let source of dataSource" class="supplier-card">
         <p name="source.item.name" class="item-name"> {{ source.item.name }} | Qty : {{ source.item.qty}} | Days
             Left: NO DATA </p>
-        <table mat-table [dataSource]="source.supplier" class="mat-elevation-z8 supplier-table" multiTemplateDataRows>
+        <table mat-table [dataSource]="source.supplier" class="mat-elevation-z8 supplier-table" multiTemplateDataRows #supplyTable>
 
-            <ng-container matColumnDef="{{def.key}}" *ngFor="let def of tableDef">
+            <ng-container matColumnDef="{{def.key}}" *ngFor="let def of tableDef" mat-sort-header>
                 <th mat-header-cell *matHeaderCellDef>
                     <div *ngIf="def.key != 'icon'">
                         {{def.header}}
@@ -46,6 +46,12 @@
                 [class.example-expanded-row]="expandedElement === element" (click)="expandRow(element)">
             </tr>
             <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="supplier-detail-row"></tr>
+
+            
         </table>
+        <mat-paginator [pageSizeOptions]="[5]"
+                 showFirstLastButtons 
+                 aria-label="Select page of periodic elements" #paginator>
+            </mat-paginator>
     </mat-card>
 </div>

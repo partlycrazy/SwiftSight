@@ -13,10 +13,14 @@ export class BurnrateComponent implements OnInit, OnChanges {
 
 
   private lineChartDataOriginal: ChartDataSets[] = [
-    { data: [65, 59, 80, 81, 56, 55, 40], label: 'Latex Glove (L)' },
-    { data: [28, 48, 40, 19, 86, 27, 90], label: 'Medical Gown (Blue)' },
-    { data: [180, 48, 77, 90, 100, 270, 120], label: 'Medical Gown (Yellow)' }
+    { data: [65, 59, 80, 81, 56, 55, 40], label: 'Latex Gloves (M)' },
+    { data: [28, 48, 40, 19, 86, 27, 90], label: 'Medical Gown' },
+    { data: [180, 48, 77, 90, 100, 270, 120], label: 'Latex Gloves (L)' }
   ];
+
+  private lineChartDataPrediction: ChartDataSets[] = [
+    { data: [, , , , , , 40, 36, 54, 69, 52, 38, 24, 30], borderDash: [5,10], pointBackgroundColor: "transparent", label: "remove" }   
+  ]
 
   public lineChartData: ChartDataSets[] = [];
   public lineChartLabels: Label[] = [];
@@ -35,7 +39,14 @@ export class BurnrateComponent implements OnInit, OnChanges {
         }
       ]
     },
-    annotation: { }
+    annotation: { },
+    legend: {
+      labels: {
+        filter: function(item, chart) {
+          return !(item.text === "remove")
+        }
+      }
+    }
   };
   public lineChartColors: Color[] = [
     { // grey
@@ -71,13 +82,17 @@ export class BurnrateComponent implements OnInit, OnChanges {
   constructor() { }
 
   ngOnInit(): void {
-    this.lineChartLabels =this.generateDates(7);
+    this.lineChartLabels = this.generateDates(7);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.lineChartData = [];
     this.lineChartDataOriginal.forEach(dataGroup => {      
       if (this.activeItem.has(dataGroup.label)) {
+        if (dataGroup.label === "Latex Gloves (M)") {
+          console.log("Adding Prediction");
+          this.lineChartData.push(this.lineChartDataPrediction[0]);
+        }
         this.lineChartData.push(dataGroup);
       }
     });
@@ -87,14 +102,18 @@ export class BurnrateComponent implements OnInit, OnChanges {
     this.lineChartData == [];
   }
 
-  generateDates(amount: number): string[] {
+  generateDates(amount: number,): string[] {
     let dateArray: string[] = [];
-   
     for (let i = 0; i < amount; i++) {
       let newDate = this.deltaDate(new Date(), -i, dateAmountType.DAYS);
       dateArray.push(newDate.toDateString());
+    }   
+    dateArray.reverse();
+    for (let i = 1; i <= 7; i++) {
+      let newDate = this.deltaDate(new Date(), i, dateAmountType.DAYS);
+      dateArray.push(newDate.toDateString());
     }
-    return dateArray.reverse();
+    return dateArray;
   }
 
   deltaDate(dt: Date, amount: number, dateType: dateAmountType): Date {

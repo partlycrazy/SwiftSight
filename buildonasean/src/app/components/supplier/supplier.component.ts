@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren, QueryList } from '@angular/core';
 import { APIService} from "../../core/http/api.service"
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Hospital, Inventory, Supplier } from '../../shared/interfaces';
+import { MatPaginator } from '@angular/material/paginator';
 import { LoginService } from '../../core/authentication/authentication.service';
-
+import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { supportsPassiveEventListeners } from '@angular/cdk/platform';
+import { MatGridTileHeaderCssMatStyler } from '@angular/material/grid-list';
 @Component({
   selector: 'app-supplier',
   templateUrl: './supplier.component.html',
@@ -16,11 +19,17 @@ import { LoginService } from '../../core/authentication/authentication.service';
     ]),
   ],
 })
-export class SupplierComponent implements OnInit {
+
+export class SupplierComponent implements OnInit, AfterViewInit {
+
+  @ViewChildren(MatPaginator) paginator !: QueryList<MatPaginator>;
+  @ViewChildren(MatTable) supplyTable !: QueryList<MatTable<Supplier>>
+
+  @ViewChild(MatPaginator, { static: true}) page: MatPaginator;
 
   constructor(private APIService: APIService, private loginService: LoginService) { 
-    this.activeHospital.id = loginService.hospitalID;
-    if (loginService.hospitalID == 0) {
+    this.activeHospital.id = loginService.getCurrentHospitalId();
+    if (loginService.getCurrentHospitalId() == 0) {
       this.admin = true;
       this.activeHospital.id = 1;
     }
@@ -32,11 +41,12 @@ export class SupplierComponent implements OnInit {
   activeHospital: Hospital = {
     id: null,
     name:  null,
-    items: new Array<Inventory>()
+    items: new Array<Inventory>(),
+    patients: []
   }
   oldHospitalId: number = 0;
 
-  dataSource: Array<SupplierTab> = [];
+  dataSource: SupplierTab2[] = [];
 
   tableDef: Array<any> = [
     {
@@ -48,7 +58,7 @@ export class SupplierComponent implements OnInit {
       header: "Name"
     },
     {
-      key: 'supply',
+      key: 'max_production',
       header: "Supply Available"
     },
     {
@@ -61,15 +71,18 @@ export class SupplierComponent implements OnInit {
     }
   ]
 
-  columnsToDisplay = ['id', 'name', 'supply', 'avgDelivery', 'icon'];
+  columnsToDisplay = ['name', 'max_production', 'avgDelivery', 'icon'];
 
   async loadInventory() {
-    this.activeHospital.id = this.activeHospital.id === 0 ? 1 : this.activeHospital.id;
+    //this.activeHospital.id = this.activeHospital.id === 0 ? 1 : this.activeHospital.id;
     var results: any = await this.APIService.getInventory(this.activeHospital.id, new Date().toISOString()).toPromise();
     results.forEach((item: any) => {
+      if (item.category_id < 1) {
+        return;
+      }
       let newItem: Inventory = {
-        id: item.item_id,
-        name: item.item_name,
+        id: item.category_id,
+        name: item.category_title,
         qty: item.total
       }
       this.activeHospital.items = [...this.activeHospital.items, newItem];
@@ -87,33 +100,46 @@ export class SupplierComponent implements OnInit {
     var sortedArray: Inventory[] = this.activeHospital.items.sort((item1, item2) => item1.qty - item2.qty);
     this.activeHospital.items = sortedArray
     for (let i = 0; i < sortedArray.length; i++) {
-      let supplierDataSource = new Array<Supplier>();
+      let supplierArray = new Array<Supplier>();
       let supplier: any = await this.loadSupplier(sortedArray[i].id);
-      supplier.forEach((s: Supplier) => {
+      supplier.forEach((s: any) => {
         let newSSource: Supplier = {
-          id: s.id,
-          name: s.name,
+          id: s.supplier_id,
+          name: s.supplier_name,
           expanded: false,
-          item_id: sortedArray[i].id
+          item_id: sortedArray[i].id,
+          max_production: 0
         }
-        supplierDataSource = [...supplierDataSource, newSSource]
+        supplierArray = [...supplierArray, newSSource]
       });
-      let newSource: SupplierTab = {
+
+      let newSource: SupplierTab2 = {
         item: sortedArray[i],
-        supplier: supplierDataSource
+        supplier: new MatTableDataSource<Supplier>(supplierArray)
       }
-      this.dataSource = [...this.dataSource, newSource];
-      console.log(this.dataSource);
+      
+      let newDataSource = [...this.dataSource];
+      newDataSource.push(newSource);
+      this.dataSource = newDataSource;      
+      setTimeout(() => {
+        this.dataSource[i].supplier.paginator = this.paginator.get(i);
+        this.supplyTable.get(i).renderRows();        
+      });      
     }
   }
 
-  ngOnInit(): void {
-    this.init();
+  ngOnInit(): void { 
+    
+   }
+
+  ngAfterViewInit() {
+    this.init();   
+    
   }
 
-  deleteAll(i: number) {
-    this.dataSource.splice(i, 1);
-  }
+  // deleteAll(i: number) {
+  //   this.dataSource.data.splice(i, 1);
+  // }
 
   changeDetected: boolean = false;
 
@@ -149,7 +175,7 @@ export class SupplierComponent implements OnInit {
   }
 
   decrement() {
-    this.dataSource = new Array<SupplierTab>();
+    // this.dataSource = new MatTableDataSource<SupplierTab>();
     if (this.activeHospital.id != 0) {
       this.activeHospital.id--;
       if (this.activeHospital.id == 0) {
@@ -160,19 +186,24 @@ export class SupplierComponent implements OnInit {
   }
 
   expandRow(elem: Supplier) {
-    this.dataSource.forEach((supplier) => {
-      if (supplier.item.id == elem.item_id) {
-        supplier.supplier.map((v) => {
-          if(v.name == elem.name) {
-            v.expanded = !v.expanded;            
+    this.dataSource.map((tab) => {
+      if (tab.item.id == elem.item_id) {
+        tab.supplier.data.map((supp) => {
+          if(supp.name === elem.name) {
+            supp.expanded = !supp.expanded;
           }
-          return v;
+          return supp;
         })
       }
     })
 
   }
 
+}
+
+interface SupplierTab2 {
+  item: Inventory,
+  supplier: MatTableDataSource<Supplier>
 }
 
 interface SupplierTab {

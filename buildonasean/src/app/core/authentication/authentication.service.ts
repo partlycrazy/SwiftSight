@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Auth } from 'aws-amplify';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 
 @Injectable()
@@ -10,14 +11,19 @@ export class LoginService {
     private authenticatedSource: Subject<Boolean> = new Subject<Boolean>();
     authenticated$ = this.authenticatedSource.asObservable();
 
-    hospitalID: number;
-    loggedIn: boolean;
+    private hospitalID: BehaviorSubject<number>;
+    public loggedIn: boolean;
 
-    constructor(public router: Router) {
+    constructor(public router: Router) { 
+        this.hospitalID = new BehaviorSubject<number>(0);
     }
 
     public getCurrentUser() {
         return Auth.currentAuthenticatedUser();
+    }
+
+    public getCurrentHospitalId(): number {
+        return this.hospitalID.value;
     }
 
     // async signNewUser() {
@@ -35,7 +41,8 @@ export class LoginService {
     async isLoggedIn() {
         const user = await Auth.currentAuthenticatedUser();
         if (user) {
-            this.hospitalID = user.attributes['custom:hospital_id'];
+            console.log(user.attributes['custom:hospital_id']);
+            this.hospitalID.next(user.attributes['custom:hospital_id']);
             this.authenticated(true);
             return true;
         }

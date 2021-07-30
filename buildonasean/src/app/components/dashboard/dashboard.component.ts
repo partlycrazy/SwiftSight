@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 import { Hospital, Inventory } from '../../shared/interfaces';
 import { APIService } from '../../core/http/api.service';
-import { LoginService } from '../../core/authentication/authentication.service';
+import { ActivatedRoute } from '@angular/router';
+import { VirtualTimeScheduler } from 'rxjs';
+import { LoginService } from 'src/app/core/authentication/authentication.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,49 +38,40 @@ export class DashboardComponent implements OnInit {
   activeHospital: Hospital = {
     id: null,
     name: null,
-    items: []
-  }
+    items: [],
+    patients: []
+  };
 
-  constructor(private breakpointObserver: BreakpointObserver, private APIService: APIService, private loginService: LoginService) {
-    
+  constructor(private breakpointObserver: BreakpointObserver, private APIService: APIService,  private loginService: LoginService) {
+    this.activeHospital.id = this.loginService.getCurrentHospitalId();
   }
 
   ngOnInit(): void { 
-
-    this.activeHospital.id = this.loginService.hospitalID;
-    this.activeHospital.name = "Whatever"
-
-    if (this.activeHospital.id == 0) {
-      this.admin = true;
-      console.log("Admin Account")
-      this.APIService.getHospitals().subscribe((results: any) => {
-        results.forEach((hospital: any) => {
-          let newHos: Hospital = {
-            id: hospital.id,
-            name: hospital.name,
-            items: []
-          }
-          this.hospitals.push(newHos);
-        });   
-      });
-    } else {
-      this.updateInventory();   
-    }        
+    this.updateInventory();
   }
 
   updateInventory() {
     this.activeHospital.items = new Array<Inventory>();
     this.APIService.getInventory(this.activeHospital.id, new Date().toISOString()).subscribe((results: any) => {
       results.forEach((item: any) => {
+        if (item.category_id < 1) {
+          return
+        }
         let newItem: Inventory = {
-          id: item.item_id,
-          name: item.item_name,
+          id: item.category_id,
+          name: item.category_title,
           qty: item.total
         }
         this.activeHospital.items = [...this.activeHospital.items, newItem];
       })
       this.selectInventory(this.activeHospital.items[0]);
     })    
+    this.APIService.getNonICUPatients(this.activeHospital.id).subscribe((num: any) => {
+      this.activeHospital.patients = [...this.activeHospital.patients, num[0].patients];
+    })
+    this.APIService.getICUPatients(this.activeHospital.id).subscribe((num: any) => {
+      this.activeHospital.patients = [...this.activeHospital.patients, num[0].patients];
+    })
     this.selected = new Set();
   }
 

@@ -19,7 +19,17 @@ export class APIService {
 
   getInventory(hospitalId:Number, date: String) 
   {
-    return this.http.get<Inventory[]>(`http://54.151.176.214:3000/api/inventory/${hospitalId}/${date}`)
+    return this.http.get<Inventory[]>(`http://54.151.176.214:3000/api/inventory/by_category/${hospitalId}/${date}`)
+  }
+
+  getNonICUPatients(hospitalId: Number)
+  {
+    return this.http.get<number[]>(`http://54.151.176.214:3000/api/patients/non_icu/${hospitalId}`)
+  }
+
+  getICUPatients(hospitalId: Number)
+  {
+    return this.http.get<number[]>(`http://54.151.176.214:3000/api/patients/icu/${hospitalId}`)
   }
 
   getSuppliers(): Observable<Supplier[]>

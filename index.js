@@ -33,7 +33,9 @@ app.get('/api/patients/non_icu/:hospital_id', db.getCurrentNonICUOccupancyNumber
 
 app.get('/api/patients/icu/:hospital_id', db.getCurrentICUOccupancyNumber)
 
-app.get('/api/suppliers/:itemID', db.getSuppliersByItemIdTest);
+app.get('/api/suppliers/by_product/:itemID', db.getSuppliersByItemIdTest);
+
+app.get('/api/suppliers/by_category/:categoryID', db.getSuppliersByCategoryId);
 
 app.get('/api/inventory/by_product/:hospital_id/:date', db.getProductInventoryByHospitalIdTest);
 
