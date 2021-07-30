@@ -42,11 +42,11 @@ const getProductInventoryByHospitalIdTest = (request, response) => {
 
     const date = request.params.date;
 
-    pool.query('SELECT DISTINCT orders.product_id, title, SUM(quantity) OVER (PARTITION BY orders.product_id) AS total \
+    pool.query('SELECT DISTINCT product_id, title, SUM(quantity) OVER (PARTITION BY product_id) AS total \
                 FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
-                LEFT JOIN products ON orders.product_id = products.product_id \
-                WHERE hospital_id = $1 AND time_fulfilled <= $2 \
-                ORDER BY orders.product_id ASC', [hospital_id, date], (err, results) => {
+                NATURAL JOIN products \
+                WHERE hospital_id = $1 AND time_fulfilled <= $2 AND product_id NOT IN (0, 1) \
+                ORDER BY product_id ASC', [hospital_id, date], (err, results) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
@@ -69,7 +69,7 @@ const getCategoryInventoryByHospitalIdTest = (request, response) => {
                 FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
                 LEFT JOIN (SELECT * FROM products natural JOIN categories) AS product_category \
                 ON orders.product_id = product_category.product_id \
-                WHERE hospital_id = $1 AND time_fulfilled <= $2 \
+                WHERE hospital_id = $1 AND time_fulfilled <= $2 AND category_id <> 0 \
                 ORDER BY category_id ASC', [hospital_id, date], (err, results) => {
         if(err) {
             console.log(err);
