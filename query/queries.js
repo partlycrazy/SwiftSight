@@ -31,7 +31,7 @@ const getInventoryByHospitalId = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-
+// api/inventory/:hospital_id/:date
 const getProductInventoryByHospitalIdTest = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -54,7 +54,7 @@ const getProductInventoryByHospitalIdTest = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-
+// api/inventory/:hospital_id/:date
 const getCategoryInventoryByHospitalIdTest = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -120,7 +120,7 @@ const getSuppliersByItemId = (request, response) => {
                     response.status(200).json(results.rows);
                 })
 }
-
+// api/suppliers/:itemID
 const getSuppliersByItemIdTest = (request, response) => {
     const item_id = parseInt(request.params.itemID);
 
@@ -139,7 +139,7 @@ const getSuppliersByItemIdTest = (request, response) => {
                     response.status(200).json(results.rows);
                 })
 }
-
+// api/inventory/:hospital_id
 const getCurrentNonICUOccupancyNumber = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -159,7 +159,7 @@ const getCurrentNonICUOccupancyNumber = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-
+// api/inventory/:hospital_id
 const getCurrentICUOccupancyNumber = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -179,7 +179,7 @@ const getCurrentICUOccupancyNumber = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-
+// api/inventory/:hospital_id
 const getCurrentNonICUOccupancyPercentage = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -200,7 +200,7 @@ const getCurrentNonICUOccupancyPercentage = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-
+// api/inventory/:hospital_id
 const getCurrentICUOccupancyPercentage = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -221,7 +221,7 @@ const getCurrentICUOccupancyPercentage = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-
+// api/inventory/:hospital_id
 const getUpcomingShipments = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -241,7 +241,7 @@ const getUpcomingShipments = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-
+// api/inventory/:hospital_id
 const getPastShipments = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -272,5 +272,14 @@ module.exports = {
     getInventoryByHospitalId,
     getAllHospitals,
     getAllSuppliers,
-    getSuppliersByItemId
+    getSuppliersByItemId,
+    getPastShipments,
+    getCategoryInventoryByHospitalIdTest,
+    getCurrentICUOccupancyNumber,
+    getCurrentICUOccupancyPercentage,
+    getCurrentNonICUOccupancyNumber,
+    getCurrentNonICUOccupancyPercentage,
+    getUpcomingShipments,
+    getSuppliersByItemIdTest,
+    getProductInventoryByHospitalIdTest
 }
