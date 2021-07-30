@@ -250,7 +250,7 @@ const getPastShipments = (request, response) => {
         return;
     }
 
-    pool.query('SELECT supplier_name, title, time_created, quantity \
+    pool.query('SELECT supplier_name, title, time_created, time_fulfilled, quantity \
                 FROM supply_orders NATURAL JOIN products NATURAL JOIN suppliers \
                 WHERE fulfilled IS TRUE AND hospital_id = $1 AND supplier_id <> 0 \
                 ORDER BY time_created ASC', [hospital_id], (err, results) => {
