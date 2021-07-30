@@ -140,6 +140,88 @@ const getSuppliersByItemIdTest = (request, response) => {
                 })
 }
 
+const getCurrentNonICUOccupancyNumber = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query('SELECT SUM(quantity) AS patients \
+                FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
+                NATURAL JOIN products \
+                WHERE hospital_id = $1 AND product_id = 0', [hospital_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
+const getCurrentICUOccupancyNumber = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query('SELECT SUM(quantity) AS patients \
+                FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
+                NATURAL JOIN products \
+                WHERE hospital_id = $1 AND product_id = 1', [hospital_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
+const getCurrentNonICUOccupancyPercentage = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query('SELECT patients/max_patient_capacity*100 as percentage \
+                FROM (SELECT SUM(quantity) AS patients, AVG(hospital_id) as hospital_id \
+                FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
+                natural JOIN products WHERE hospital_id = $1 AND product_id = 0) AS total_patient \
+                NATURAL JOIN hospitals', [hospital_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
+const getCurrentICUOccupancyPercentage = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query('SELECT patients/max_patient_capacity*100 as percentage \
+                FROM (SELECT SUM(quantity) AS patients, AVG(hospital_id) as hospital_id \
+                FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
+                natural JOIN products WHERE hospital_id = $1 AND product_id = 1) AS total_patient \
+                NATURAL JOIN hospitals', [hospital_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
 const getUser = (request, response) => {
     
 
