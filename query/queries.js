@@ -32,6 +32,52 @@ const getInventoryByHospitalId = (request, response) => {
     })
 }
 
+const getProductInventoryByHospitalIdTest = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    const date = request.params.date;
+
+    pool.query('SELECT DISTINCT orders.product_id, title, SUM(quantity) OVER (PARTITION BY orders.product_id) AS total \
+    FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders LEFT JOIN products ON orders.product_id = products.product_id \
+    WHERE hospital_id = $1 AND time_fulfilled <= $2 \
+    ORDER BY orders.product_id ASC', [hospital_id, date], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
+const getCategoryInventoryByHospitalIdTest = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    const date = request.params.date;
+
+    pool.query('SELECT DISTINCT category_id, category_title, SUM(quantity) OVER (PARTITION BY category_id) AS total \
+    FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
+    LEFT JOIN (SELECT * FROM products natural JOIN categories) AS product_category \
+    ON orders.product_id = product_category.product_id \
+    WHERE hospital_id = $1 AND time_fulfilled <= $2 \
+    ORDER BY category_id ASC', [hospital_id, date], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
 // api/hospitals
 const getAllHospitals = (request, response) => {
     pool.query('SELECT * FROM hospitals', (err, results) => {
