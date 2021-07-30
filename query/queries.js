@@ -121,7 +121,7 @@ const getSuppliersByItemId = (request, response) => {
                 })
 }
 
-// api/suppliers/:CategoryId
+// api/suppliers/by_category/:CategoryId
 const getSuppliersByCategoryId = (request, response) => {
     const category_id = parseInt(request.params.CategoryId);
 
@@ -141,7 +141,7 @@ const getSuppliersByCategoryId = (request, response) => {
                     response.status(200).json(results.rows);
                 })
 }
-// api/suppliers/:itemID
+// api/suppliers/by_product/:itemID
 const getSuppliersByItemIdTest = (request, response) => {
     const item_id = parseInt(request.params.itemID);
 
@@ -157,28 +157,6 @@ const getSuppliersByItemIdTest = (request, response) => {
                     if (err) {
                         console.log(err)
                         response.status(400).json("ERROR");
-                    }
-                    response.status(200).json(results.rows);
-                })
-}
-
-// api/suppliers/by_category/:categoryID
-const getSuppliersByCategoryId = (request, response) => {
-    const category_id = parseInt(request.parems.categoryID)
-
-    if (isNaN(category_id)) {
-        response.status(400).json("ERROR NOT INT");
-    }
-
-    pool.query('SELECT DISTINCT product_id, category_id, supplier_id, supplier_name, \
-                amount as max_production_amount, email_address, address \
-                FROM max_production NATURAL JOIN suppliers NATURAL JOIN product NATURAL join categories \
-                WHERE category_id = $1 \
-                ORDER BY supplier_id ASC', [category_id], (err, results)=> {
-                    if (err) {
-                        console.log(err)
-                        response.status(400).json("ERROR");
-                        return;
                     }
                     response.status(200).json(results.rows);
                 })
