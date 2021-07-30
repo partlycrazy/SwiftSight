@@ -42,11 +42,11 @@ const getProductInventoryByHospitalIdTest = (request, response) => {
 
     const date = request.params.date;
 
-    pool.query('SELECT DISTINCT orders.product_id, title, SUM(quantity) OVER (PARTITION BY orders.product_id) AS total \
+    pool.query('SELECT DISTINCT product_id, title, SUM(quantity) OVER (PARTITION BY product_id) AS total \
                 FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
-                LEFT JOIN products ON orders.product_id = products.product_id \
-                WHERE hospital_id = $1 AND time_fulfilled <= $2 \
-                ORDER BY orders.product_id ASC', [hospital_id, date], (err, results) => {
+                NATURAL JOIN products \
+                WHERE hospital_id = $1 AND time_fulfilled <= $2 AND product_id NOT IN (0, 1) \
+                ORDER BY product_id ASC', [hospital_id, date], (err, results) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
@@ -69,7 +69,7 @@ const getCategoryInventoryByHospitalIdTest = (request, response) => {
                 FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
                 LEFT JOIN (SELECT * FROM products natural JOIN categories) AS product_category \
                 ON orders.product_id = product_category.product_id \
-                WHERE hospital_id = $1 AND time_fulfilled <= $2 \
+                WHERE hospital_id = $1 AND time_fulfilled <= $2 AND category_id <> 0 \
                 ORDER BY category_id ASC', [hospital_id, date], (err, results) => {
         if(err) {
             console.log(err);
@@ -120,7 +120,28 @@ const getSuppliersByItemId = (request, response) => {
                     response.status(200).json(results.rows);
                 })
 }
-// api/suppliers/by_product/:itemID
+
+// api/suppliers/:CategoryId
+const getSuppliersByCategoryId = (request, response) => {
+    const category_id = parseInt(request.params.CategoryId);
+
+    if (isNaN(category_id)) {
+        response.status(400).json("ERROR NOT INT");
+    }
+    
+    pool.query('SELECT DISTINCT category_id, supplier_id, supplier_name, \
+                SUM(amount) OVER (PARTITION BY (supplier_id)) AS max_production_amount, email_address, address \
+                FROM max_production NATURAL JOIN (SELECT * FROM suppliers WHERE supplier_id <> 0) AS supplier \
+                NATURAL JOIN categories WHERE category_id = $1 \
+                ORDER BY supplier_id ASC', [category_id], (err, results) => {
+                    if (err) {
+                        console.log(err)
+                        response.status(400).json("ERROR");
+                    }
+                    response.status(200).json(results.rows);
+                })
+}
+// api/suppliers/:itemID
 const getSuppliersByItemIdTest = (request, response) => {
     const item_id = parseInt(request.params.itemID);
 
@@ -130,7 +151,7 @@ const getSuppliersByItemIdTest = (request, response) => {
 
     pool.query('SELECT DISTINCT product_id, supplier_id, supplier_name, \
                 amount AS max_production_amount, email_address, address  \
-                FROM max_production NATURAL JOIN suppliers \
+                FROM max_production NATURAL JOIN (SELECT * FROM suppliers WHERE supplier_id <> 0) AS supplier \
                 WHERE product_id = $1 \
                 ORDER BY supplier_id ASC', [item_id], (err, results) => {
                     if (err) {
