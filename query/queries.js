@@ -242,6 +242,26 @@ const getUpcomingShipments = (request, response) => {
     })
 }
 
+const getPastShipments = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query('SELECT supplier_name, title, time_created, quantity \
+                FROM supply_orders NATURAL JOIN products NATURAL JOIN suppliers \
+                WHERE fulfilled IS TRUE AND hospital_id = $1 AND supplier_id <> 0 \
+                ORDER BY time_created ASC', [hospital_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
 const getUser = (request, response) => {
     
 
