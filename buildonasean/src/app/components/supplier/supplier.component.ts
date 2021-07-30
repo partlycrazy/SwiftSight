@@ -90,7 +90,7 @@ export class SupplierComponent implements OnInit, AfterViewInit {
   }
 
   async loadSupplier(itemID: number): Promise<Supplier[]> {
-    var results: Supplier[] = await this.APIService.getSupplierByItemId(itemID).toPromise(); 
+    var results: Supplier[] = await this.APIService.getSupplierByCategoryId(itemID).toPromise(); 
     return results; 
   }
 
@@ -100,6 +100,7 @@ export class SupplierComponent implements OnInit, AfterViewInit {
     var sortedArray: Inventory[] = this.activeHospital.items.sort((item1, item2) => item1.qty - item2.qty);
     this.activeHospital.items = sortedArray
     for (let i = 0; i < sortedArray.length; i++) {
+      console.log(sortedArray[i]);
       let supplierArray = new Array<Supplier>();
       let supplier: any = await this.loadSupplier(sortedArray[i].id);
       supplier.forEach((s: any) => {
@@ -108,7 +109,9 @@ export class SupplierComponent implements OnInit, AfterViewInit {
           name: s.supplier_name,
           expanded: false,
           item_id: sortedArray[i].id,
-          max_production: 0
+          max_production: s.max_production_amount,
+          address: s.address,
+          email_address: s.email_address
         }
         supplierArray = [...supplierArray, newSSource]
       });

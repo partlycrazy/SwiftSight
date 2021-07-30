@@ -7,7 +7,6 @@ import { BurnrateComponent } from './burnrate/burnrate.component';
 import { ChartsModule } from 'ng2-charts';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
-import { HospitalsResolve } from 'src/app/core/http/hospital.resolve';
 
 @NgModule({
   imports: [
@@ -17,7 +16,7 @@ import { HospitalsResolve } from 'src/app/core/http/hospital.resolve';
     FormsModule,
     MatSelectModule
   ],
-  providers: [HospitalsResolve],
+  providers: [],
   declarations: [DashboardComponent, BurnrateComponent]
 })
 export class DashboardModule { }

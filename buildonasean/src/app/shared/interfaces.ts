@@ -17,4 +17,6 @@ export interface Supplier {
     expanded: boolean;
     item_id: number;
     max_production: number;
+    address: string;
+    email_address: string;
 }

@@ -40,7 +40,12 @@ export class APIService {
 
   getSupplierByItemId(itemID: number): Observable<Supplier[]>  
   {
-    return this.http.get<Supplier[]>(`http://54.151.176.214:3000/api/suppliers/${itemID}`)
+    return this.http.get<Supplier[]>(`http://54.151.176.214:3000/api/suppliers/by_product/${itemID}`)
+  }
+
+  getSupplierByCategoryId(catID: number): Observable<Supplier[]>  
+  {
+    return this.http.get<Supplier[]>(`http://54.151.176.214:3000/api/suppliers/by_category/${catID}`)
   }
 
 }
