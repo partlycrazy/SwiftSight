@@ -128,7 +128,8 @@ const getSuppliersByItemIdTest = (request, response) => {
         response.status(400).json("ERROR NOT INT");
     }
 
-    pool.query('SELECT DISTINCT product_id, supplier_id, supplier_name \
+    pool.query('SELECT DISTINCT product_id, supplier_id, supplier_name, \
+                amount AS max_production_amount, email_address, address  \
                 FROM max_production NATURAL JOIN suppliers \
                 WHERE product_id = $1 \
                 ORDER BY supplier_id ASC', [item_id], (err, results) => {
