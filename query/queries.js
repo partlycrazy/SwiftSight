@@ -139,7 +139,7 @@ const getSuppliersByItemIdTest = (request, response) => {
                     response.status(200).json(results.rows);
                 })
 }
-// api/inventory/:hospital_id
+// api/patients/non_icu/:hospital_id
 const getCurrentNonICUOccupancyNumber = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -159,7 +159,7 @@ const getCurrentNonICUOccupancyNumber = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-// api/inventory/:hospital_id
+// api/patients/icu/:hospital_id
 const getCurrentICUOccupancyNumber = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -179,7 +179,7 @@ const getCurrentICUOccupancyNumber = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-// api/inventory/:hospital_id
+// api/patients/non_icu/:hospital_id
 const getCurrentNonICUOccupancyPercentage = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -200,7 +200,7 @@ const getCurrentNonICUOccupancyPercentage = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-// api/inventory/:hospital_id
+// api/patients/icu/:hospital_id
 const getCurrentICUOccupancyPercentage = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -221,7 +221,7 @@ const getCurrentICUOccupancyPercentage = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-// api/inventory/:hospital_id
+// api/shipment/upcoming/:hospital_id
 const getUpcomingShipments = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -241,7 +241,7 @@ const getUpcomingShipments = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
-// api/inventory/:hospital_id
+// api/shipment/past/:hospital_id
 const getPastShipments = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -260,12 +260,6 @@ const getPastShipments = (request, response) => {
         }
         response.status(200).json(results.rows)
     })
-}
-
-const getUser = (request, response) => {
-    
-
-    pool.query('SELECT * FROM users WHERE ')
 }
 
 module.exports = {
