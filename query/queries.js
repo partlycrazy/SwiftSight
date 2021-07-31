@@ -10,28 +10,6 @@ const pool = new Pool({
 })
 
 // api/inventory/:hospital_id/:date
-const getInventoryByHospitalId = (request, response) => {
-    const hospital_id = parseInt(request.params.hospital_id);
-
-    if (isNaN(hospital_id)) {
-        response.status(400).json("ERROR NOT INT");
-        return;
-    }
-
-    const date = request.params.date;
-
-
-    pool.query('SELECT distinct item_id, item_name, SUM(qty) over (partition by item_id) as total \
-    FROM sku inner JOIN requests on requests.id = request_id left join items on item_id = items.id \
-    WHERE requests.hospital_id = $1 and requests.date_time <= $2', [hospital_id, date], (err, results) => {
-        if(err) {
-            console.log(err);
-            response.status(400).json("ERROR");
-        }
-        response.status(200).json(results.rows)
-    })
-}
-// api/inventory/:hospital_id/:date
 const getProductInventoryByHospitalIdTest = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -50,6 +28,7 @@ const getProductInventoryByHospitalIdTest = (request, response) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows)
     })
@@ -74,6 +53,7 @@ const getCategoryInventoryByHospitalIdTest = (request, response) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows)
     })
@@ -85,6 +65,7 @@ const getAllHospitals = (request, response) => {
         if (err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows)
     })
@@ -92,33 +73,14 @@ const getAllHospitals = (request, response) => {
 
 // api/suppliers
 const getAllSuppliers = (request, response) => {
-    pool.query('SELECT * FROM suppliers WHERE id <> 0', (err, results) => {
+    pool.query('SELECT * FROM suppliers WHERE supplier_id <> 0', (err, results) => {
         if (err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows);
     })
-}
-
-// api/suppliers/:itemID
-
-const getSuppliersByItemId = (request, response) => {
-    const item_id = parseInt(request.params.itemID);
-
-    if (isNaN(item_id)) {
-        response.status(400).json("ERROR NOT INT");
-    }
-    
-    pool.query('SELECT DISTINCT id, name FROM supply left join suppliers \
-                ON supply.supplier_id = suppliers.id \
-                WHERE item_id = $1', [item_id], (err, results) => {
-                    if (err) {
-                        console.log(err)
-                        response.status(400).json("ERROR");
-                    }
-                    response.status(200).json(results.rows);
-                })
 }
 
 // api/suppliers/by_category/:CategoryId
@@ -137,6 +99,7 @@ const getSuppliersByCategoryId = (request, response) => {
                     if (err) {
                         console.log(err)
                         response.status(400).json("ERROR");
+                        return;
                     }
                     response.status(200).json(results.rows);
                 })
@@ -157,6 +120,7 @@ const getSuppliersByItemIdTest = (request, response) => {
                     if (err) {
                         console.log(err)
                         response.status(400).json("ERROR");
+                        return;
                     }
                     response.status(200).json(results.rows);
                 })
@@ -178,6 +142,7 @@ const getCurrentNonICUOccupancyNumber = (request, response) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows)
     })
@@ -198,6 +163,7 @@ const getCurrentICUOccupancyNumber = (request, response) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows)
     })
@@ -219,6 +185,7 @@ const getCurrentNonICUOccupancyPercentage = (request, response) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows)
     })
@@ -240,6 +207,7 @@ const getCurrentICUOccupancyPercentage = (request, response) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows)
     })
@@ -260,6 +228,7 @@ const getUpcomingShipments = (request, response) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return;
         }
         response.status(200).json(results.rows)
     })
@@ -280,16 +249,42 @@ const getPastShipments = (request, response) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
+            return
         }
         response.status(200).json(results.rows)
     })
 }
 
+// api/chart/:hospital_id/:days
+const getChartData = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+    const days = request.params.days;
+
+    if (isNaN(hospital_id) || isNaN(days)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    console.log(days);
+    console.log(hospital_id);
+    pool.query(`SELECT * FROM (SELECT order_id, time_fulfilled as datetime, hospital_id, category_id,  \
+                SUM(quantity) OVER (PARTITION BY hospital_id, category_id ORDER BY time_fulfilled ROWS UNBOUNDED PRECEDING) AS total \
+                FROM supply_orders NATURAL JOIN products \
+                WHERE fulfilled  AND time_fulfilled IS NOT NULL) AS new_table NATURAL JOIN categories\
+                WHERE category_id <> 0 AND datetime > (CURRENT_TIMESTAMP - INTERVAL '1 year ${days} days') AND hospital_id = $1`,
+                [hospital_id], (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        response.status(400).json("ERROR");
+                        return;
+                    }
+                    response.status(200).json(results.rows);
+                })
+}
+
 module.exports = {
-    getInventoryByHospitalId,
     getAllHospitals,
     getAllSuppliers,
-    getSuppliersByItemId,
     getPastShipments,
     getCategoryInventoryByHospitalIdTest,
     getCurrentICUOccupancyNumber,
@@ -299,5 +294,6 @@ module.exports = {
     getUpcomingShipments,
     getSuppliersByItemIdTest,
     getSuppliersByCategoryId,
-    getProductInventoryByHospitalIdTest
+    getProductInventoryByHospitalIdTest,
+    getChartData
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 import { Color, BaseChartDirective, Label } from 'ng2-charts';
+import { APIService } from 'src/app/core/http/api.service';
 
 @Component({
   selector: 'dashboard-burnrate',
@@ -10,17 +11,10 @@ import { Color, BaseChartDirective, Label } from 'ng2-charts';
 export class BurnrateComponent implements OnInit, OnChanges {
 
   @Input() activeItem: Set<string>
+  @Input() hospital_id: number
 
 
-  private lineChartDataOriginal: ChartDataSets[] = [
-    { data: [65, 59, 80, 81, 56, 55, 40], label: 'Latex Gloves (M)' },
-    { data: [28, 48, 40, 19, 86, 27, 90], label: 'Medical Gown' },
-    { data: [180, 48, 77, 90, 100, 270, 120], label: 'Latex Gloves (L)' }
-  ];
-
-  private lineChartDataPrediction: ChartDataSets[] = [
-    { data: [, , , , , , 40, 36, 54, 69, 52, 38, 24, 30], borderDash: [5,10], pointBackgroundColor: "transparent", label: "remove" }   
-  ]
+  private lineChartDataOriginal: ChartDataSets[] = [];
 
   public lineChartData: ChartDataSets[] = [];
   public lineChartLabels: Label[] = [];
@@ -45,6 +39,13 @@ export class BurnrateComponent implements OnInit, OnChanges {
         filter: function(item, chart) {
           return !(item.text === "remove")
         }
+      }
+    },
+    tooltips: {
+      filter: function(tooltip) {
+        // console.log(tooltip);
+        return true;
+        // return tooltip.datasetIndex % 2 != 0;
       }
     }
   };
@@ -77,42 +78,109 @@ export class BurnrateComponent implements OnInit, OnChanges {
   public lineChartLegend = true;
   public lineChartType: ChartType = 'line';
 
+  dataLoaded: boolean = false;
+
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
-  constructor() { }
+  constructor(private APIService: APIService) { }
 
   ngOnInit(): void {
-    this.lineChartLabels = this.generateDates(7);
+    this.fetchChartData();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngAfterViewInit() {
+    
+  }
+
+  renderChart() {
     this.lineChartData = [];
     this.lineChartDataOriginal.forEach(dataGroup => {      
       if (this.activeItem.has(dataGroup.label)) {
+        // if (dataGroup.label === "Latex Gloves (M)") {
+        //   console.log("Adding Prediction");
+        //   let newArray = new Array(10);
+        //   newArray.push(7)
+        //   console.log(newArray);
+        //   this.lineChartData.push(this.lineChartDataPrediction[0]);
+        //   console.log(this.lineChartDataPrediction[0]);
+        // }
+        
         if (dataGroup.label === "Latex Gloves (M)") {
-          console.log("Adding Prediction");
-          this.lineChartData.push(this.lineChartDataPrediction[0]);
+          let predDataArray = new Array(dataGroup.data.length - 1);
+          predDataArray.push(dataGroup.data[dataGroup.data.length - 1]);
+          predDataArray.push(1000)
+          predDataArray.push(2000)
+          let predChartData = {
+            data: predDataArray, borderDash: [5,10], pointBackgroundColor: "transparent", label: "remove"
+          }
+          this.lineChartData.push(predChartData);
         }
         this.lineChartData.push(dataGroup);
       }
     });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes);
+    this.renderChart();
+  }
+
   ngOnDestroy() {
     this.lineChartData == [];
   }
 
-  generateDates(amount: number,): string[] {
+  async fetchChartData() {
+    let result = await this.APIService.getChartData(this.hospital_id, 7).toPromise();
+    let chartData: any[] = []
+    result.forEach((res) => {
+      let exist = chartData.filter((e: any) => e.label === res.category_title);
+      if (exist.length == 0) {
+        let newChartData: any = {
+          data: [{ order_id: res.order_id, datetime: res.datetime, value: res.total }], label: res.category_title
+        }
+        chartData.push(newChartData);
+      } else {
+        if (exist[0].data.length == 14) {
+          return;
+        }
+
+        let sameDate = exist[0].data.filter((e: any) => e.datetime === res.datetime)
+        if (sameDate.length == 0) {
+          exist[0].data.push({
+            order_id: res.order_id,
+            datetime: res.datetime,
+            value: res.total
+          });
+        } else {
+          if(exist[0].data.order_id < res.order_id) {
+            exist[0].data.order_id = res.order_id
+            exist[0].data.value = res.total;
+          }
+        }
+      }
+    })
+    chartData[0].data.forEach((d: any) => {
+      let dateLabel = new Date(d.datetime)
+      this.lineChartLabels.push(dateLabel.toDateString());
+    })
+
+    this.lineChartLabels = this.lineChartLabels.concat(this.generateDates(new Date('2020-08-08 04:00:00'), 7))
+
+
+    chartData.forEach(cData => {      
+      cData.data = cData.data.map((o: any) => o.value);      
+    })
+    this.lineChartDataOriginal = chartData;
+    this.dataLoaded = true;
+    this.renderChart();
+  }
+
+  generateDates(start: Date, amount: number): string[] {
     let dateArray: string[] = [];
     for (let i = 0; i < amount; i++) {
-      let newDate = this.deltaDate(new Date(), -i, dateAmountType.DAYS);
+      let newDate = this.deltaDate(start, i, dateAmountType.DAYS);
       dateArray.push(newDate.toDateString());
     }   
-    dateArray.reverse();
-    for (let i = 1; i <= 7; i++) {
-      let newDate = this.deltaDate(new Date(), i, dateAmountType.DAYS);
-      dateArray.push(newDate.toDateString());
-    }
     return dateArray;
   }
 

@@ -1,12 +1,11 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren, QueryList } from '@angular/core';
 import { APIService} from "../../core/http/api.service"
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Hospital, Inventory, Supplier } from '../../shared/interfaces';
+import { Hospital, Inventory, Item, Supplier } from '../../shared/interfaces';
 import { MatPaginator } from '@angular/material/paginator';
 import { LoginService } from '../../core/authentication/authentication.service';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { supportsPassiveEventListeners } from '@angular/cdk/platform';
-import { MatGridTileHeaderCssMatStyler } from '@angular/material/grid-list';
+
 @Component({
   selector: 'app-supplier',
   templateUrl: './supplier.component.html',
@@ -100,7 +99,7 @@ export class SupplierComponent implements OnInit, AfterViewInit {
     var sortedArray: Inventory[] = this.activeHospital.items.sort((item1, item2) => item1.qty - item2.qty);
     this.activeHospital.items = sortedArray
     for (let i = 0; i < sortedArray.length; i++) {
-      console.log(sortedArray[i]);
+      // console.log(sortedArray[i]);
       let supplierArray = new Array<Supplier>();
       let supplier: any = await this.loadSupplier(sortedArray[i].id);
       supplier.forEach((s: any) => {
@@ -108,7 +107,8 @@ export class SupplierComponent implements OnInit, AfterViewInit {
           id: s.supplier_id,
           name: s.supplier_name,
           expanded: false,
-          item_id: sortedArray[i].id,
+          category_id: s.category_id,
+          item_model: [],
           max_production: s.max_production_amount,
           address: s.address,
           email_address: s.email_address
@@ -190,7 +190,7 @@ export class SupplierComponent implements OnInit, AfterViewInit {
 
   expandRow(elem: Supplier) {
     this.dataSource.map((tab) => {
-      if (tab.item.id == elem.item_id) {
+      if (tab.item.id == elem.category_id) {
         tab.supplier.data.map((supp) => {
           if(supp.name === elem.name) {
             supp.expanded = !supp.expanded;

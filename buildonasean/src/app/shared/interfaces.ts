@@ -15,8 +15,14 @@ export interface Supplier {
     id: number;
     name: string;
     expanded: boolean;
-    item_id: number;
+    category_id: number;
+    item_model: Item[];
     max_production: number;
     address: string;
     email_address: string;
+}
+
+export interface Item {
+    product_id: number;
+    production: number;
 }
