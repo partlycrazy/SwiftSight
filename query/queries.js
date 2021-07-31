@@ -94,7 +94,7 @@ const getSuppliersByCategoryId = (request, response) => {
     pool.query('SELECT DISTINCT category_id, supplier_id, supplier_name, \
                 SUM(amount) OVER (PARTITION BY (supplier_id)) AS max_production_amount, email_address, address \
                 FROM max_production NATURAL JOIN (SELECT * FROM suppliers WHERE supplier_id <> 0) AS supplier \
-                NATURAL JOIN categories WHERE category_id = $1 \
+                NATURAL JOIN ((SELECT * FROM categories WHERE category_id = $1) AS category NATURAL JOIN products) \
                 ORDER BY supplier_id ASC', [category_id], (err, results) => {
                     if (err) {
                         console.log(err)
