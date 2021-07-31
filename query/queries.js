@@ -264,12 +264,13 @@ const getBurnOutRatePerDayPerPatient = (request, response) => {
         return;
     }
 
-    pool.query(`SELECT product_id, burnrateperday/patients AS burnrate\
-                FROM (SELECT DISTINCT hospital_id, SUM(quantity) OVER (PARTITION BY hospital_id) AS patients \
+    pool.query(`SELECT category_id, category_title, burnrateperday/patients AS burnrate \
+                FROM (SELECT DISTINCT hospital_id, SUM(quantity) OVER (PARTITION BY hospital_id) AS patients \ 
                 FROM supply_orders WHERE product_id IN (0,1)) AS patientcount \
-                NATURAL JOIN (SELECT DISTINCT hospital_id, product_id, (SUM(quantity) OVER (PARTITION BY hospital_id, product_id))/-7 AS burnRatePerDay \
-                FROM supply_orders WHERE quantity < 0 AND fulfilled IS TRUE AND supplier_id = 0 \
-                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '7 days')) AS burnrates \
+                NATURAL JOIN (SELECT DISTINCT hospital_id, category_id, (SUM(quantity) OVER (PARTITION BY hospital_id, category_id))/-7 AS burnRatePerDay \
+                FROM (SELECT * FROM (SELECT * FROM supply_orders WHERE quantity < 0 AND fulfilled IS TRUE AND supplier_id = 0 \
+                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '7 days')) AS temp3) AS temp \
+                NATURAL JOIN products) AS temp2 NATURAL JOIN categories \
                 WHERE hospital_id = $1`, [hospital_id], (err, results) => {
         if(err) {
             console.log(err);
@@ -289,13 +290,16 @@ const getDaysLeftByHospitalId = (request, response) => {
         return;
     }
 
-    pool.query(`SELECT product_id, ROUND(total/burnRatePerDay) AS daysLeft\
-                FROM (SELECT DISTINCT hospital_id, product_id, title, SUM(quantity) OVER (PARTITION BY hospital_id, product_id) AS total \
-                FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \ 
-                NATURAL JOIN products WHERE product_id NOT IN (0, 1)) as inventories\
-                NATURAL JOIN (SELECT DISTINCT hospital_id, product_id, (SUM(quantity) OVER (PARTITION BY hospital_id, product_id))/-7 AS burnRatePerDay \
-                FROM supply_orders WHERE quantity < 0 AND fulfilled IS TRUE AND supplier_id = 0 \
-                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '7 days')) AS burnrates \
+    pool.query(`SELECT category_id, category_title, ROUND(total/burnRatePerDay) AS daysLeft\
+                FROM (SELECT DISTINCT category_id, category_title, SUM(quantity) OVER (PARTITION BY category_id) AS total \
+                FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
+                LEFT JOIN (SELECT * FROM products natural JOIN categories) AS product_category \
+                ON orders.product_id = product_category.product_id \
+                WHERE category_id <> 0) as inventories\
+                NATURAL JOIN (SELECT DISTINCT hospital_id, category_id, (SUM(quantity) OVER (PARTITION BY hospital_id, category_id))/-7 AS burnRatePerDay \
+                FROM (SELECT * FROM (SELECT * FROM supply_orders WHERE quantity < 0 AND fulfilled IS TRUE AND supplier_id = 0 \
+                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '7 days')) AS temp3) AS temp \
+                NATURAL JOIN products) AS temp2 NATURAL JOIN categories \
                 WHERE hospital_id = $1`, [hospital_id], (err, results) => {
         if(err) {
             console.log(err);
