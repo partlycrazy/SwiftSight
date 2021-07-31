@@ -255,6 +255,57 @@ const getPastShipments = (request, response) => {
     })
 }
 
+// api/shipment/past/:hospital_id
+const getBurnOutRatePerDayPerPatient = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query(`SELECT product_id, burnrateperday/patients AS burnrate\
+                FROM (SELECT DISTINCT hospital_id, SUM(quantity) OVER (PARTITION BY hospital_id) AS patients \
+                FROM supply_orders WHERE product_id IN (0,1)) AS patientcount \
+                NATURAL JOIN (SELECT DISTINCT hospital_id, product_id, (SUM(quantity) OVER (PARTITION BY hospital_id, product_id))/-7 AS burnRatePerDay \
+                FROM supply_orders WHERE quantity < 0 AND fulfilled IS TRUE AND supplier_id = 0 \
+                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '7 days')) AS burnrates \
+                WHERE hospital_id = $1`, [hospital_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+            return
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
+// api/shipment/past/:hospital_id
+const getDaysLeftByHospitalId = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query(`SELECT product_id, ROUND(total/burnRatePerDay) AS daysLeft\
+                FROM (SELECT DISTINCT hospital_id, product_id, title, SUM(quantity) OVER (PARTITION BY hospital_id, product_id) AS total \
+                FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \ 
+                NATURAL JOIN products WHERE product_id NOT IN (0, 1)) as inventories\
+                NATURAL JOIN (SELECT DISTINCT hospital_id, product_id, (SUM(quantity) OVER (PARTITION BY hospital_id, product_id))/-7 AS burnRatePerDay \
+                FROM supply_orders WHERE quantity < 0 AND fulfilled IS TRUE AND supplier_id = 0 \
+                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '7 days')) AS burnrates \
+                WHERE hospital_id = $1`, [hospital_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+            return
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
 // api/chart/:hospital_id/:days
 const getChartData = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
@@ -295,5 +346,7 @@ module.exports = {
     getSuppliersByItemIdTest,
     getSuppliersByCategoryId,
     getProductInventoryByHospitalIdTest,
-    getChartData
+    getChartData,
+    getBurnOutRatePerDayPerPatient,
+    getDaysLeftByHospitalId
 }
