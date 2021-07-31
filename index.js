@@ -17,7 +17,11 @@ app.use(cors());
 
 app.listen(process.env.PORT || 3000, process.env.IP_ADDR || "192.168.1.172", () => console.log('server is listening'));
 
+app.get('/api/hospitals/:hospital_id', db.getHospital);
+
 app.get('/api/hospitals', db.getAllHospitals);
+
+
 
 app.get('/api/suppliers', db.getAllSuppliers);
 

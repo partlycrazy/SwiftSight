@@ -1,10 +1,8 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 import { Hospital, Inventory } from '../../shared/interfaces';
 import { APIService } from '../../core/http/api.service';
-import { ActivatedRoute } from '@angular/router';
-import { VirtualTimeScheduler } from 'rxjs';
 import { LoginService } from 'src/app/core/authentication/authentication.service';
 
 @Component({
@@ -32,7 +30,7 @@ export class DashboardComponent implements OnInit {
   );
 
   selected: Set<string> = new Set();
-  columnsToDisplay = ['name', 'qty'];
+  columnsToDisplay = ['name', 'qty', 'daysLeft'];
   hospitals: Array<Hospital> = []
   admin: boolean = false;
   activeHospital: Hospital = {
@@ -66,12 +64,6 @@ export class DashboardComponent implements OnInit {
       })
       this.selectInventory(this.activeHospital.items[0]);
     })    
-    this.APIService.getNonICUPatients(this.activeHospital.id).subscribe((num: any) => {
-      this.activeHospital.patients = [...this.activeHospital.patients, num[0].patients];
-    })
-    this.APIService.getICUPatients(this.activeHospital.id).subscribe((num: any) => {
-      this.activeHospital.patients = [...this.activeHospital.patients, num[0].patients];
-    })
     this.selected = new Set();
   }
 

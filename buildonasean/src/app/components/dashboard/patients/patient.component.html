@@ -1,0 +1,25 @@
+<div style="display: flex;">
+    <div style="width: 45%"> 
+        <canvas baseChart width="400px" height="200px"
+        [data]="nonICUData"
+        [labels]="nonICULabels"
+        [options]="nonICUOptions"
+        [colors]="donutChartColor"
+        [chartType]="chartType"
+        class="patient-chart"></canvas>
+
+    </div>
+    <div style="width: 10%">
+      
+    </div>
+
+    <div style="width: 45%"> 
+        <canvas baseChart width="400px" height="200px"
+        [data]="ICUData"
+        [labels]="ICULabels"
+        [options]="ICUOptions"
+        [colors]="donutChartColor"
+        [chartType]="chartType"
+        class="patient-chart"></canvas>
+    </div>
+</div>

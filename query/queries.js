@@ -71,6 +71,26 @@ const getAllHospitals = (request, response) => {
     })
 }
 
+// api/hospitals/:hospital_id
+const getHospital = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return
+    }
+
+    pool.query('SELECT * FROM hospitals WHERE hospital_id = $1', [hospital_id], 
+            (err, results) => {
+                if (err) {
+                    console.log(err);
+                    response.status(400).json("ERROR");
+                    return
+                }
+                response.status(200).json(results.rows);
+            })
+}
+
 // api/suppliers
 const getAllSuppliers = (request, response) => {
     pool.query('SELECT * FROM suppliers WHERE supplier_id <> 0', (err, results) => {
@@ -267,11 +287,11 @@ const getChartData = (request, response) => {
 
     console.log(days);
     console.log(hospital_id);
-    pool.query(`SELECT * FROM (SELECT order_id, time_fulfilled as datetime, hospital_id, category_id,  \
+    pool.query(`SELECT categories.category_title, new_table.* FROM (SELECT order_id, time_fulfilled as datetime, hospital_id, category_id,  \
                 SUM(quantity) OVER (PARTITION BY hospital_id, category_id ORDER BY time_fulfilled ROWS UNBOUNDED PRECEDING) AS total \
                 FROM supply_orders NATURAL JOIN products \
                 WHERE fulfilled  AND time_fulfilled IS NOT NULL) AS new_table NATURAL JOIN categories\
-                WHERE category_id <> 0 AND datetime > (CURRENT_TIMESTAMP - INTERVAL '1 year ${days} days') AND hospital_id = $1`,
+                WHERE category_id <> 0 AND datetime > (CURRENT_TIMESTAMP - INTERVAL '14 days') AND hospital_id = $1`,
                 [hospital_id], (err, results) => {
                     if (err) {
                         console.log(err);
@@ -284,6 +304,7 @@ const getChartData = (request, response) => {
 
 module.exports = {
     getAllHospitals,
+    getHospital,
     getAllSuppliers,
     getPastShipments,
     getCategoryInventoryByHospitalIdTest,

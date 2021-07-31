@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 import { Color, BaseChartDirective, Label } from 'ng2-charts';
 import { APIService } from 'src/app/core/http/api.service';
@@ -9,6 +9,7 @@ import { APIService } from 'src/app/core/http/api.service';
   styleUrls: ['./burnrate.component.css']
 })
 export class BurnrateComponent implements OnInit, OnChanges {
+  
 
   @Input() activeItem: Set<string>
   @Input() hospital_id: number
@@ -22,27 +23,43 @@ export class BurnrateComponent implements OnInit, OnChanges {
     responsive: true,
     scales: {
       // We use this empty structure as a placeholder for dynamic theming.
-      xAxes: [{}],
+      xAxes: [{
+        gridLines: {
+          color: 'darkgrey'
+        },
+        ticks: {
+          fontColor: 'black'
+        }
+      }],
       yAxes: [
         {
           id: 'y-axis-0',
           position: 'left',
           ticks: {
+            fontColor: 'black',
             beginAtZero: true
+          },
+          gridLines: {
+            color: 'darkgrey'
           }
         }
       ]
     },
-    annotation: { },
+    elements: {
+      point: {
+        radius: 4
+      }
+    },
+    annotation: {},
     legend: {
       labels: {
-        filter: function(item, chart) {
+        filter: function (item, chart) {
           return !(item.text === "remove")
         }
       }
     },
     tooltips: {
-      filter: function(tooltip) {
+      filter: function (tooltip) {
         // console.log(tooltip);
         return true;
         // return tooltip.datasetIndex % 2 != 0;
@@ -50,29 +67,40 @@ export class BurnrateComponent implements OnInit, OnChanges {
     }
   };
   public lineChartColors: Color[] = [
-    { // grey
-      backgroundColor: 'rgba(148,159,177,0.2)',
-      borderColor: 'rgba(148,159,177,1)',
-      pointBackgroundColor: 'rgba(148,159,177,1)',
-      pointBorderColor: '#fff',
+    { // orange
+      // backgroundColor: 'rgba(148,159,177,0.2)',
+      backgroundColor: 'transparent',
+      borderColor: 'rgba(219,120,52, 1)',
+      pointBackgroundColor: 'rgba(219,120,52, 1)',
+      pointBorderColor: 'rgba(219,120,52, 1)',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+      pointHoverBorderColor: 'rgba(219,120,52, 1)'
     },
-    { // dark grey
-      backgroundColor: 'rgba(77,83,96,0.2)',
-      borderColor: 'rgba(77,83,96,1)',
-      pointBackgroundColor: 'rgba(77,83,96,1)',
-      pointBorderColor: '#fff',
+    { // purple
+      // backgroundColor: 'rgba(77,83,96,0.2)',
+      backgroundColor: 'transparent',
+      borderColor: 'rgba(114, 93, 132, 1)',
+      pointBackgroundColor: 'rgba(114, 93, 132, 1)',
+      pointBorderColor: 'rgba(114, 93, 132, 1)',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(77,83,96,1)'
+      pointHoverBorderColor: 'rgba(114, 93, 132, 1)'
     },
-    { // red
-      backgroundColor: 'rgba(255,0,0,0.3)',
-      borderColor: 'red',
-      pointBackgroundColor: 'rgba(148,159,177,1)',
-      pointBorderColor: '#fff',
+    { // lime
+      // backgroundColor: 'rgba(255,0,0,0.3)',
+      backgroundColor: 'transparent',
+      borderColor: 'rgba(162,193,1, 1)',
+      pointBackgroundColor: 'rgba(162,193,1, 1)',
+      pointBorderColor: 'rgba(162,193,1, 1)',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(148,159,177,0.8)'
+      pointHoverBorderColor: 'rgba(162,193,1, 1)'
+    },
+    { // blue
+      backgroundColor: 'transparent',
+      borderColor: 'rgba(23,158,224, 1)',
+      pointBackgroundColor: 'rgba(23,158,224, 1)',
+      pointBorderColor: 'rgba(23,158,224, 1)',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: 'rgba(23,158,224, 1)'
     }
   ];
   public lineChartLegend = true;
@@ -88,13 +116,9 @@ export class BurnrateComponent implements OnInit, OnChanges {
     this.fetchChartData();
   }
 
-  ngAfterViewInit() {
-    
-  }
-
   renderChart() {
     this.lineChartData = [];
-    this.lineChartDataOriginal.forEach(dataGroup => {      
+    this.lineChartDataOriginal.forEach(dataGroup => {
       if (this.activeItem.has(dataGroup.label)) {
         // if (dataGroup.label === "Latex Gloves (M)") {
         //   console.log("Adding Prediction");
@@ -104,14 +128,15 @@ export class BurnrateComponent implements OnInit, OnChanges {
         //   this.lineChartData.push(this.lineChartDataPrediction[0]);
         //   console.log(this.lineChartDataPrediction[0]);
         // }
-        
+
         if (dataGroup.label === "Latex Gloves (M)") {
           let predDataArray = new Array(dataGroup.data.length - 1);
           predDataArray.push(dataGroup.data[dataGroup.data.length - 1]);
-          predDataArray.push(1000)
-          predDataArray.push(2000)
+          predDataArray.push(2032)
+          predDataArray.push(1074)
+          predDataArray.push(1532)
           let predChartData = {
-            data: predDataArray, borderDash: [5,10], pointBackgroundColor: "transparent", label: "remove"
+            data: predDataArray, borderDash: [5, 10], pointBackgroundColor: "transparent", label: "remove", borderColor: "red"
           }
           this.lineChartData.push(predChartData);
         }
@@ -136,15 +161,15 @@ export class BurnrateComponent implements OnInit, OnChanges {
       let exist = chartData.filter((e: any) => e.label === res.category_title);
       if (exist.length == 0) {
         let newChartData: any = {
-          data: [{ order_id: res.order_id, datetime: res.datetime, value: res.total }], label: res.category_title
+          data: [{ order_id: res.order_id, datetime: res.datetime, value: res.total }], label: res.category_title, backgroundColor: 'transparent'
         }
         chartData.push(newChartData);
       } else {
-        if (exist[0].data.length == 14) {
-          return;
-        }
+        // if (exist[0].data.length == 14) {
+        //   return;
+        // }
 
-        let sameDate = exist[0].data.filter((e: any) => e.datetime === res.datetime)
+        let sameDate = exist[0].data.filter((e: any) => this.checkSameDay(e.datetime, res.datetime))
         if (sameDate.length == 0) {
           exist[0].data.push({
             order_id: res.order_id,
@@ -152,7 +177,7 @@ export class BurnrateComponent implements OnInit, OnChanges {
             value: res.total
           });
         } else {
-          if(exist[0].data.order_id < res.order_id) {
+          if (exist[0].data.order_id < res.order_id) {
             exist[0].data.order_id = res.order_id
             exist[0].data.value = res.total;
           }
@@ -167,8 +192,8 @@ export class BurnrateComponent implements OnInit, OnChanges {
     this.lineChartLabels = this.lineChartLabels.concat(this.generateDates(new Date('2020-08-08 04:00:00'), 7))
 
 
-    chartData.forEach(cData => {      
-      cData.data = cData.data.map((o: any) => o.value);      
+    chartData.forEach(cData => {
+      cData.data = cData.data.map((o: any) => o.value);
     })
     this.lineChartDataOriginal = chartData;
     this.dataLoaded = true;
@@ -180,7 +205,7 @@ export class BurnrateComponent implements OnInit, OnChanges {
     for (let i = 0; i < amount; i++) {
       let newDate = this.deltaDate(start, i, dateAmountType.DAYS);
       dateArray.push(newDate.toDateString());
-    }   
+    }
     return dateArray;
   }
 
@@ -193,9 +218,16 @@ export class BurnrateComponent implements OnInit, OnChanges {
       case dateAmountType.MONTHS:
         return dt.setMonth(dt.getMonth() + amount) && dt;
       case dateAmountType.YEARS:
-        return dt.setFullYear( dt.getFullYear() + amount) && dt;
+        return dt.setFullYear(dt.getFullYear() + amount) && dt;
     }
   }
+
+  checkSameDay(date1: string, date2: string) {
+    let d1 = new Date(date1)
+    let d2 = new Date(date2)
+    return d1.getDate() === d2.getDate() && Math.abs(d1.getTime() - d2.getTime())<24*60*60*1000;
+  }
+
 }
 
 enum dateAmountType {

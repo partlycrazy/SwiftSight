@@ -55,11 +55,20 @@
     padding-left: 16px;
     border-right: 1px solid black;
     font-size: 20px;
+    text-align: center;
 }
   
 .mat-column-qty {
     padding-left: 16px;
     font-size: 20px;
+    border-right: 1px solid grey;
+    text-align: center;
+}
+
+.mat-column-daysLeft {
+  padding-left: 16px;
+  font-size: 20px;
+  text-align: center;
 }
 
 .is-clicked {
