@@ -275,7 +275,7 @@ const getPastShipments = (request, response) => {
     })
 }
 
-// api/shipment/past/:hospital_id
+// api/inventory/burn/:hospital_id
 const getBurnOutRatePerDayPerPatient = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
@@ -301,7 +301,7 @@ const getBurnOutRatePerDayPerPatient = (request, response) => {
     })
 }
 
-// api/shipment/past/:hospital_id
+// api/inventory/burn/:hospital_id
 const getDaysLeftByHospitalId = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 

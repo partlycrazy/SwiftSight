@@ -30,7 +30,7 @@ export class DashboardComponent implements OnInit {
   );
 
   selected: Set<string> = new Set();
-  columnsToDisplay = ['name', 'qty', 'daysLeft'];
+  columnsToDisplay = ['name', 'qty', 'days_left'];
   hospitals: Array<Hospital> = []
   admin: boolean = false;
   activeHospital: Hospital = {
@@ -48,23 +48,29 @@ export class DashboardComponent implements OnInit {
     this.updateInventory();
   }
 
-  updateInventory() {
+  async updateInventory() {
     this.activeHospital.items = new Array<Inventory>();
-    this.APIService.getInventory(this.activeHospital.id, new Date().toISOString()).subscribe((results: any) => {
-      results.forEach((item: any) => {
-        if (item.category_id < 1) {
-          return
-        }
-        let newItem: Inventory = {
-          id: item.category_id,
-          name: item.category_title,
-          qty: item.total
-        }
-        this.activeHospital.items = [...this.activeHospital.items, newItem];
-      })
-      this.selectInventory(this.activeHospital.items[0]);
-    })    
+    let results: any[] = await this.APIService.getInventory(this.activeHospital.id, new Date().toISOString()).toPromise();
+    let daysLeft: any[] = await this.APIService.getDaysLeft(this.activeHospital.id).toPromise();
+
+    let itemsArray: Inventory[] = []
+    for (let i = 0; i < results.length; i++) {
+      let newItem: Inventory = {
+        id: results[i].category_id,
+        name: results[i].category_title,
+        qty: results[i].total,
+        days_left: daysLeft[i].daysleft
+      }
+      itemsArray.push(newItem);
+    }
+
+    let sortedItemsArray = itemsArray.sort((item1, item2) => item1.days_left - item2.days_left);
+
+    this.activeHospital.items = sortedItemsArray;
+
+    console.log(this.activeHospital.items[0]);
     this.selected = new Set();
+    this.selectInventory(this.activeHospital.items[0]);
   }
 
   selectInventory(value: Inventory) {

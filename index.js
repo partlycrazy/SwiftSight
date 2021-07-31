@@ -41,4 +41,6 @@ app.get('/api/inventory/by_product/:hospital_id/:date', db.getProductInventoryBy
 
 app.get('/api/inventory/by_category/:hospital_id/:date', db.getCategoryInventoryByHospitalIdTest);
 
+app.get('/api/inventory/burn/:hospital_id', db.getDaysLeftByHospitalId);
+
 app.get('/api/chart/:hospital_id/:days', db.getChartData)

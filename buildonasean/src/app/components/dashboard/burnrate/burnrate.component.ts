@@ -17,6 +17,8 @@ export class BurnrateComponent implements OnInit, OnChanges {
 
   private lineChartDataOriginal: ChartDataSets[] = [];
 
+  private burnrateData: Burnrate[] = []
+
   public lineChartData: ChartDataSets[] = [];
   public lineChartLabels: Label[] = [];
   public lineChartOptions: (ChartOptions & { annotation: any }) = {
@@ -61,8 +63,8 @@ export class BurnrateComponent implements OnInit, OnChanges {
     tooltips: {
       filter: function (tooltip) {
         // console.log(tooltip);
-        return true;
-        // return tooltip.datasetIndex % 2 != 0;
+        // return true;
+        return tooltip.datasetIndex % 2 != 1;
       }
     }
   };
@@ -114,35 +116,68 @@ export class BurnrateComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.fetchChartData();
+    this.fetchBurnrate();
+  }
+
+  async fetchBurnrate() {
+    let results = await this.APIService.getDaysLeft(this.hospital_id).toPromise();
+    
+    for (let i = 0; i < results.length; i++) {
+      let newBurnrate: Burnrate = {
+        category_name: results[i].category_title,
+        days_left: results[i].daysleft
+      }
+      this.burnrateData.push(newBurnrate);
+    }
+
+
+
   }
 
   renderChart() {
     this.lineChartData = [];
-    this.lineChartDataOriginal.forEach(dataGroup => {
+    let colorCount = 0;
+    for (let i = 0; i < this.lineChartDataOriginal.length; i++) {
+      let dataGroup = this.lineChartDataOriginal[i];
       if (this.activeItem.has(dataGroup.label)) {
-        // if (dataGroup.label === "Latex Gloves (M)") {
-        //   console.log("Adding Prediction");
-        //   let newArray = new Array(10);
-        //   newArray.push(7)
-        //   console.log(newArray);
-        //   this.lineChartData.push(this.lineChartDataPrediction[0]);
-        //   console.log(this.lineChartDataPrediction[0]);
-        // }
 
-        if (dataGroup.label === "Latex Gloves (M)") {
-          let predDataArray = new Array(dataGroup.data.length - 1);
-          predDataArray.push(dataGroup.data[dataGroup.data.length - 1]);
-          predDataArray.push(2032)
-          predDataArray.push(1074)
-          predDataArray.push(1532)
-          let predChartData = {
-            data: predDataArray, borderDash: [5, 10], pointBackgroundColor: "transparent", label: "remove", borderColor: "red"
-          }
-          this.lineChartData.push(predChartData);
+        let dataGroupChartData = {
+          data: dataGroup.data,
+          label: dataGroup.label,
+          backgroundColor: 'transparent',
+          borderColor: this.lineChartColors[colorCount].borderColor,
+          pointBackgroundColor: this.lineChartColors[colorCount].pointBackgroundColor,
+          pointBorderColor: this.lineChartColors[colorCount].pointBorderColor,
+          pointHoverBackgroundColor: "#fff",
+          pointHoverBorderColor: this.lineChartColors[colorCount].pointHoverBorderColor
         }
-        this.lineChartData.push(dataGroup);
+
+        this.lineChartData.push(dataGroupChartData);
+        let predDataArray = new Array(dataGroup.data.length - 1);
+        let currentQty: any = dataGroup.data[dataGroup.data.length - 1];
+        predDataArray.push(currentQty);
+
+        let daysLeft = this.burnrateData.find((item) => item.category_name === dataGroup.label).days_left;
+        let delta = currentQty / daysLeft;
+
+        for (let i = 0; i < 7; i++) {
+          currentQty -= delta;
+          predDataArray.push(currentQty)
+        }
+
+        let predChartData = {
+          data: predDataArray, borderDash: [5, 8], 
+          label: "remove",
+          pointBackgroundColor: "transparent", 
+          backgroundColor: 'transparent',
+          pointBorderColor: 'transparent', 
+          pointRadius: 0,
+          borderColor: this.lineChartColors[colorCount].borderColor
+        }
+        this.lineChartData.push(predChartData);
+        colorCount = colorCount == 3 ? 0 : colorCount+1;
       }
-    });
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -235,4 +270,9 @@ enum dateAmountType {
   WEEKS,
   MONTHS,
   YEARS,
+}
+
+interface Burnrate {
+  category_name: string,
+  days_left: number
 }

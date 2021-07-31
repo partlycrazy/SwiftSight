@@ -5,13 +5,15 @@ import { SupplierRoutingModule } from './supplier-routing.module';
 import { SharedModule } from '../shared.module';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatChipsModule } from '@angular/material/chips';
 
 @NgModule({
   imports: [
     SupplierRoutingModule, 
     SharedModule,
     MatIconModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatChipsModule
   ],
   declarations: [SupplierComponent]
 })

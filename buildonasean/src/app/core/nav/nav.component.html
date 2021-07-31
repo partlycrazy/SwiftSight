@@ -6,11 +6,14 @@
       [opened]="(isHandset$ | async) === false">
     <mat-toolbar>Menu</mat-toolbar>
     <mat-nav-list>
-      <a *ngFor="let item of menuItems" mat-list-item [routerLink]="'/'+item"> {{ item | titlecase }} </a>
+      <a *ngFor="let item of menuItems" mat-list-item [routerLink]="'/'+item"> 
+        <mat-icon *ngIf="item==='dashboard'" style="margin-right: 5px">dashboard</mat-icon>
+        <mat-icon *ngIf="item==='supplier'" style="margin-right: 5px">store</mat-icon>
+        {{ item | titlecase }} </a>
     </mat-nav-list>
     <mat-nav-list class="logout-button">
-      <a mat-list-item [routerLink]="'/settings'"> Settings </a>
-      <a mat-list-item (click)="onLogOut()"> Logout </a>
+      <a mat-list-item [routerLink]="'/settings'"> <mat-icon style="margin-right: 5px">settings</mat-icon>   Settings </a>
+      <a mat-list-item (click)="onLogOut()"> <mat-icon style="margin-right: 5px">logout</mat-icon>Logout </a>
     </mat-nav-list>    
   </mat-sidenav>
   <mat-sidenav-content>

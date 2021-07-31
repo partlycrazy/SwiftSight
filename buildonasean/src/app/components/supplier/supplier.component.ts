@@ -74,18 +74,19 @@ export class SupplierComponent implements OnInit, AfterViewInit {
 
   async loadInventory() {
     //this.activeHospital.id = this.activeHospital.id === 0 ? 1 : this.activeHospital.id;
-    var results: any = await this.APIService.getInventory(this.activeHospital.id, new Date().toISOString()).toPromise();
-    results.forEach((item: any) => {
-      if (item.category_id < 1) {
-        return;
-      }
+    let results: any = await this.APIService.getInventory(this.activeHospital.id, new Date().toISOString()).toPromise();
+    let daysLeft: any[] = await this.APIService.getDaysLeft(this.activeHospital.id).toPromise();
+
+    for (let i = 0; i < results.length; i++) {
       let newItem: Inventory = {
-        id: item.category_id,
-        name: item.category_title,
-        qty: item.total
+        id: results[i].category_id,
+        name: results[i].category_title,
+        qty: results[i].total,
+        days_left: daysLeft[i].daysleft
       }
-      this.activeHospital.items = [...this.activeHospital.items, newItem];
-    })
+      this.activeHospital.items = [...this.activeHospital.items, newItem]
+    }
+
   }
 
   async loadSupplier(itemID: number): Promise<Supplier[]> {
@@ -96,29 +97,32 @@ export class SupplierComponent implements OnInit, AfterViewInit {
   async init() {
     await this.loadInventory();
     
-    var sortedArray: Inventory[] = this.activeHospital.items.sort((item1, item2) => item1.qty - item2.qty);
+    var sortedArray: Inventory[] = this.activeHospital.items.sort((item1, item2) => item1.days_left - item2.days_left);
     this.activeHospital.items = sortedArray
     for (let i = 0; i < sortedArray.length; i++) {
       // console.log(sortedArray[i]);
       let supplierArray = new Array<Supplier>();
       let supplier: any = await this.loadSupplier(sortedArray[i].id);
-      supplier.forEach((s: any) => {
+
+      for (let i = 0; i < supplier.length; i++) {
         let newSSource: Supplier = {
-          id: s.supplier_id,
-          name: s.supplier_name,
+          id: supplier[i].supplier_id,
+          name: supplier[i].supplier_name,
           expanded: false,
-          category_id: s.category_id,
+          category_id: supplier[i].category_id,
           item_model: [],
-          max_production: s.max_production_amount,
-          address: s.address,
-          email_address: s.email_address
+          max_production: supplier[i].max_production_amount,
+          address: supplier[i].address,
+          email_address: supplier[i].email_address
         }
         supplierArray = [...supplierArray, newSSource]
-      });
+      }
+
+      let sortedSupplierArray = supplierArray.sort((item1, item2) => item2.max_production - item1.max_production);
 
       let newSource: SupplierTab2 = {
         item: sortedArray[i],
-        supplier: new MatTableDataSource<Supplier>(supplierArray)
+        supplier: new MatTableDataSource<Supplier>(sortedSupplierArray)
       }
       
       let newDataSource = [...this.dataSource];

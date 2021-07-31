@@ -27,6 +27,11 @@ export class APIService {
     return this.http.get<Inventory[]>(`http://54.151.176.214:3000/api/inventory/by_category/${hospitalId}/${date}`)
   }
 
+  getDaysLeft(hospital_id: number)
+  {
+    return this.http.get<any[]>(`http://192.168.1.172:3000/api/inventory/burn/${hospital_id}`);
+  }
+
   getNonICUPatients(hospitalId: Number)
   {
     return this.http.get<number[]>(`http://54.151.176.214:3000/api/patients/non_icu/${hospitalId}`)

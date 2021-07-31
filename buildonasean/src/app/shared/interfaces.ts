@@ -1,28 +1,29 @@
 export interface Hospital {
-    id: number;
-    name: string;
-    items: Inventory[];
-    patients: number[];
+    id?: number | undefined;
+    name?: string | undefined;
+    items?: Inventory[] | undefined;
+    patients?: number[] | undefined;
 }
 
 export interface Inventory {
-    id: number;
-    name: string;
-    qty: number;
+    id?: number | undefined;
+    name?: string | undefined;
+    qty?: number | undefined;
+    days_left?: number | undefined;
 }
 
 export interface Supplier {
-    id: number;
-    name: string;
-    expanded: boolean;
-    category_id: number;
-    item_model: Item[];
-    max_production: number;
-    address: string;
-    email_address: string;
+    id?: number | undefined;
+    name?: string | undefined ;
+    expanded?: boolean | undefined;
+    category_id?: number | undefined;
+    item_model?: Item[] | undefined;
+    max_production?: number | undefined;
+    address?: string | undefined;
+    email_address?: string | undefined;
 }
 
 export interface Item {
-    product_id: number;
-    production: number;
+    product_id?: number | undefined;
+    production?: number | undefined;
 }

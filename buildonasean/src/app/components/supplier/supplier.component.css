@@ -28,6 +28,30 @@
   width: 250px;
 }
 
+.chip {
+  display: inline-block;
+  padding: 0 10px;
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
+  border-radius: 25px;
+  margin: 0px 10px 10px 10px;
+  background-color: #f1f1f1;
+}
+
+.chip-primary {
+  background-color: #145da0;
+  color: white;
+}
+
+.chip-orange {
+  background-color: #F39C12;
+}
+
+.chip-green {
+  background-color: #48C9B0;
+}
+
 .mat-column-avgDelivery {
   padding-left: 16px;
   font-size: 16px;
