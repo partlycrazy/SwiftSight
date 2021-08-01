@@ -18,7 +18,7 @@
                 <div  class="content" style="display: inline-flex;">   
                     {{ currentNonICUCount }}  
                     <div *ngIf="ytdNonICUCount > currentNonICUCount" style="margin-left: 5px">
-                        <img  src="../../../../assets/down_arrow.svg"> -{{currentNonICUCount-ytdNonICUCount}}
+                        <img  src="../../../../assets/down_arrow.svg"> {{currentNonICUCount-ytdNonICUCount}}
                     </div>
                     <div *ngIf="ytdNonICUCount <= currentNonICUCount" style="margin-left: 5px">
                         <img src="../../../../assets/up_arrow.svg"> +{{currentNonICUCount-ytdNonICUCount}}
@@ -33,7 +33,7 @@
                 <div  class="content" style="display: inline-flex;">   
                     {{ currentICUCount }}
                     <div *ngIf="ytdICUCount > currentICUCount" style="margin-left: 5px">
-                        <img    src="../../../../assets/down_arrow.svg"> -{{currentICUCount-ytdICUCount}}
+                        <img    src="../../../../assets/down_arrow.svg"> {{currentICUCount-ytdICUCount}}
                     </div>
                     <div *ngIf="ytdICUCount <= currentICUCount" style="margin-left: 5px">
                         <img  src="../../../../assets/up_arrow.svg"> +{{currentICUCount-ytdICUCount}}

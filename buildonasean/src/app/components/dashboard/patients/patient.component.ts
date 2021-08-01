@@ -61,7 +61,7 @@ export class PatientComponent implements OnInit {
   public nonICUData: SingleDataSet = [];
   public nonICUOptions: (ChartOptions & { annotation: any }) = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: true,
     annotation: {},
     rotation: 1 * Math.PI,
     circumference: 1 * Math.PI

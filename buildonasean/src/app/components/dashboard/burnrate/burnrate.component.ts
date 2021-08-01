@@ -169,6 +169,7 @@ export class BurnrateComponent implements OnInit, OnChanges {
             }
           }
           currentQty -= delta;
+          currentQty = (currentQty < 0) ? 0 : currentQty;
           predDataArray.push(currentQty)
         }
 
