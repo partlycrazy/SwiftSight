@@ -61,7 +61,7 @@ export class SupplierComponent implements OnInit, AfterViewInit {
       header: "Supply Available"
     },
     {
-      key: "avgDelivery",
+      key: "delivery_time",
       header: "Avg Delivery Time"
     },
     {
@@ -70,7 +70,7 @@ export class SupplierComponent implements OnInit, AfterViewInit {
     }
   ]
 
-  columnsToDisplay = ['name', 'max_production', 'avgDelivery', 'icon'];
+  columnsToDisplay = ['name', 'max_production', 'delivery_time', 'icon'];
 
   async loadInventory() {
     //this.activeHospital.id = this.activeHospital.id === 0 ? 1 : this.activeHospital.id;
@@ -103,8 +103,17 @@ export class SupplierComponent implements OnInit, AfterViewInit {
       // console.log(sortedArray[i]);
       let supplierArray = new Array<Supplier>();
       let supplier: any = await this.loadSupplier(sortedArray[i].id);
+      let deliveryData: any[] = await this.APIService.getDeliveryTime(this.activeHospital.id, sortedArray[i].id).toPromise();
 
       for (let i = 0; i < supplier.length; i++) {
+        let deliveryTime = deliveryData.find((e:any) => e.supplier_id === supplier[i].supplier_id);
+
+        if (deliveryTime === undefined) {
+          deliveryTime = {
+            days_taken: 3
+          }
+        }
+
         let newSSource: Supplier = {
           id: supplier[i].supplier_id,
           name: supplier[i].supplier_name,
@@ -113,12 +122,23 @@ export class SupplierComponent implements OnInit, AfterViewInit {
           item_model: [],
           max_production: supplier[i].max_production_amount,
           address: supplier[i].address,
-          email_address: supplier[i].email_address
+          email_address: supplier[i].email_address,
+          delivery_time: deliveryTime.days_taken + " days"
         }
         supplierArray = [...supplierArray, newSSource]
       }
 
-      let sortedSupplierArray = supplierArray.sort((item1, item2) => item2.max_production - item1.max_production);
+      let sortedSupplierArray = supplierArray.sort((item1, item2) => {
+
+        let t1 = parseFloat(item1.delivery_time.replace(" days", ""));
+        let t2 = parseFloat(item2.delivery_time.replace(" days", ""));
+
+        if (t1 == t2) {
+          return item2.max_production - item1.max_production;
+        } else {
+          return t1 - t2;
+        }
+      });
 
       let newSource: SupplierTab2 = {
         item: sortedArray[i],

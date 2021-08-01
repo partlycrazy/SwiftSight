@@ -29,12 +29,14 @@ export interface Shipment {
     order_date?: string | undefined;
     supplier_name?: string | undefined;
     items?: Item[] | undefined;
+    estimated_delivery?: number | undefined;
 }
 
 export interface Item {
     product_id?: number | undefined;
     product_name?: string | undefined;
     category_id?: number | undefined;
-    category_name?: number | undefined;
+    category_name?: string | undefined;
     production?: number | undefined;
+    shipped?: boolean | undefined;
 }

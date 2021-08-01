@@ -12,25 +12,36 @@
     text-align: center;
     font-size: 16px;
   }
+
+  .center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+  
  
   
   .mat-column-order_id, .mat-column-product_name {
-    padding-left: 16px;
+    padding-left: 4px;
     border-right: 1px solid black;
     font-size: 16px;
     text-align: center;
     width: 250px;
   }
 
-  .mat-column-supplier_name, .mat-column-production {
+  .mat-column-supplier_name, .mat-column-shipped {
     padding-left: 16px;
     font-size: 16px;
     text-align: center;
   } 
 
   
-  .mat-column-order_date, .mat-column-category_name {
+  .mat-column-order_date, .mat-column-category_name, .mat-column-production {
     padding-left: 16px;
+    padding-right: 16px;
     font-size: 16px;
     text-align: center;
     border-right: 1px solid grey;

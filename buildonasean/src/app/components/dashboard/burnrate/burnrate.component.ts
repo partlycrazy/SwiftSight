@@ -2,6 +2,8 @@ import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges } from '@
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 import { Color, BaseChartDirective, Label } from 'ng2-charts';
 import { APIService } from 'src/app/core/http/api.service';
+import { Shipment } from 'src/app/shared/interfaces';
+import { ShipmentComponent } from '../shipment/shipment.component';
 
 @Component({
   selector: 'dashboard-burnrate',
@@ -13,7 +15,7 @@ export class BurnrateComponent implements OnInit, OnChanges {
 
   @Input() activeItem: Set<string>
   @Input() hospital_id: number
-
+  @Input() upcomingShipments: Shipment[]
 
   private lineChartDataOriginal: ChartDataSets[] = [];
 
@@ -158,6 +160,15 @@ export class BurnrateComponent implements OnInit, OnChanges {
         let delta = currentQty / daysLeft;
 
         for (let i = 0; i < 7; i++) {
+          let newShipment = this.upcomingShipments.filter(shipment => shipment.estimated_delivery === i);
+          if (newShipment.length > 0) {
+            for (let j = 0; j < newShipment.length; j++) {
+              let addItem = newShipment[j].items.filter(e => e.category_name === dataGroup.label);
+              for (let k = 0; k < addItem.length; k++) {
+                currentQty += Number(addItem[k].production);
+              }
+            }
+          }
           currentQty -= delta;
           predDataArray.push(currentQty)
         }

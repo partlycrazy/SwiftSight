@@ -57,6 +57,11 @@ export class APIService {
   {
     return this.http.get<Supplier[]>(`http://54.151.176.214:3000/api/suppliers/by_category/${catID}`)
   }
+  
+  getDeliveryTime(hospital_id: number, category_id: number)
+  {
+    return this.http.get<any[]>(`http://192.168.1.172:3000/api/suppliers/delivery/${hospital_id}/${category_id}`);
+  }
 
   getChartData(hospital_id: number, days: number): Observable<any[]>
   {

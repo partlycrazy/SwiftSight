@@ -1,8 +1,9 @@
-import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
 import { APIService } from 'src/app/core/http/api.service';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatTableDataSource } from '@angular/material/table';
 import { Item, Shipment } from 'src/app/shared/interfaces';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MAT_DIALOG_SCROLL_STRATEGY_FACTORY } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-shipment',
@@ -17,9 +18,10 @@ import { Item, Shipment } from 'src/app/shared/interfaces';
   ],
 })
 
-export class ShipmentComponent implements OnInit, AfterViewInit {
+export class ShipmentComponent implements OnInit {
 
   @Input() hospital_id: number
+  @Output() upcomingShipments = new EventEmitter<Shipment[]>();
   
   tableDef: Array<any> = [
     {
@@ -40,15 +42,16 @@ export class ShipmentComponent implements OnInit, AfterViewInit {
     }
   ]
 
-  dataSource: MatTableDataSource<(Shipment & { expanded: boolean })>
+  dataSource: MatTableDataSource<Shipment>
 
-  columnsToDisplay = ['order_id', 'order_date', 'supplier_name', 'icon'];
-
+  columnsToDisplay = ['order_id', 'order_date', 'supplier_name'];
   columnsToDisplay2 = ['product_name', 'category_name', 'production'];
+
+  
 
   expandedElement: null;
 
-  constructor(private APIService: APIService) { }
+  constructor(private APIService: APIService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.init();
@@ -56,7 +59,7 @@ export class ShipmentComponent implements OnInit, AfterViewInit {
 
   async init() {
     let results = await this.APIService.getUpcomingShipments(this.hospital_id).toPromise();
-    let shipmentArray: (Shipment & { expanded: boolean})[] = []
+    let shipmentArray: Shipment[] = []
     for (let i = 0; i < results.length; i++) {
       let exist = shipmentArray.filter((e: any) => e.order_id === results[i].order_id)
       let newItem: Item = {
@@ -64,53 +67,112 @@ export class ShipmentComponent implements OnInit, AfterViewInit {
         product_name: results[i].title,
         category_id: results[i].category_id,
         category_name: results[i].category_title,
-        production: results[i].quantity
+        production: results[i].quantity,
+        shipped: false
       }
 
       if (exist.length == 0) {
         
-        let newShipment: (Shipment & { expanded: boolean }) = {
+        let newShipment: (Shipment) = {
           order_id: results[i].order_id,
           order_date: new Date(results[i].time_created).toDateString(),
           supplier_name: results[i].supplier_name,
-          expanded: false,
-          items: new Array<Item>(newItem)
+          items: new Array<Item>(newItem),
+          estimated_delivery: 3
         }
         shipmentArray.push(newShipment);
       } else {
         exist[0].items.push(newItem);
       }
     }
+    this.upcomingShipments.emit(shipmentArray);
     console.log(shipmentArray);
-    this.dataSource = new MatTableDataSource<(Shipment & { expanded: boolean })>(shipmentArray);
+    this.dataSource = new MatTableDataSource<Shipment>(shipmentArray);
+  }
+
+  cloneShipment(shipment: Shipment) {
+    let clonedShipment: Shipment = {
+      order_id: shipment.order_id,
+      order_date: shipment.order_date,
+      supplier_name: shipment.supplier_name,
+      items: new Array<Item>(),
+      estimated_delivery: shipment.estimated_delivery
+    }
+    for (let i = 0; i < shipment.items.length; i++) {
+      let clonedItem: Item = {
+        category_id: shipment.items[i].category_id,
+        category_name: shipment.items[i].category_name,
+        product_id: shipment.items[i].product_id,
+        product_name: shipment.items[i].product_name,
+        production: shipment.items[i].production,
+        shipped: shipment.items[i].shipped
+      }
+      clonedShipment.items.push(clonedItem);
+    }
+    return clonedShipment
   }
 
   expandRow(elem: Shipment) {
-
-    this.dataSource.data.forEach((shipment: any) => {
-      if (shipment.order_id === elem.order_id) {
-        shipment.expanded = !shipment.expanded;
-      }
-      return shipment;
+    let copiedElem: Shipment = this.cloneShipment(elem);
+    const dialogRef = this.dialog.open(ShipmentDetails, {
+      data: copiedElem
     })
 
-    // this.dataSource.map((tab) => {
-    //   if (tab.item.id == elem.category_id) {
-    //     tab.supplier.data.map((supp) => {
-    //       if(supp.name === elem.name) {
-    //         supp.expanded = !supp.expanded;
-    //       }
-    //       return supp;
-    //     })
-    //   }
-    // })
-
+    dialogRef.afterClosed().subscribe((result: Shipment) => {
+      if (result === undefined) return;
+      this.dataSource.data = this.dataSource.data.map(obj => (result.order_id === obj.order_id) ? result : obj);
+    })
   }
-
-  ngAfterViewInit() {  }
-
 }
 
-interface ShipmentTab {
+@Component({
+  selector: 'shipment-details',
+  templateUrl: 'shipment.details.html',
+  styleUrls: ['./shipment.component.css'],
+})
+export class ShipmentDetails implements OnInit {
+
+  tableDef: Array<any> = [
+    {
+      key: "product_name",
+      header: "Product"
+    },
+    {
+      key: "category_name",
+      header: "Category"
+    },
+    {
+      key: 'production',
+      header: "Quantity"
+    },
+    {
+      key: "shipped",
+      header: "Arrived?"
+    }
+  ]
+  
+  columnsToDisplay2 = ['product_name', 'category_name', 'production', 'shipped'];
+
+  columnsToDisplay3 = ['product_name', 'category_name', 'production'];
+  estimatedDeliveryString: string
+
+  itemDataSource: Item[];
+
+  constructor(public dialogRef: MatDialogRef<ShipmentComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: Shipment) {}
+
+  ngOnInit() {
+    this.estimatedDeliveryString = this.deltaDate(new Date(this.data.order_date), this.data.estimated_delivery).toDateString();
+    // this.data.items[0].shipped = true;
+    // this.itemDataSource = this.data.items.slice();
+  }
+
+  deltaDate(dt: Date, amount: number): Date {
+     return dt.setDate(dt.getDate() + amount) && dt;
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
+  }
 
 }

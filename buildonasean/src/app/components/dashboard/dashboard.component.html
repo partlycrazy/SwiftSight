@@ -75,7 +75,7 @@
           </mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
-          <dashboard-burnrate  [activeItem]="selected" [hospital_id]="activeHospital.id"></dashboard-burnrate>
+          <dashboard-burnrate  [activeItem]="selected" [hospital_id]="activeHospital.id" [upcomingShipments]="upcomingShipments"></dashboard-burnrate>
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>
@@ -87,7 +87,7 @@
           </mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
-          <app-shipment [hospital_id]="activeHospital.id"></app-shipment>
+          <app-shipment [hospital_id]="activeHospital.id" (upcomingShipments)="onShipment($event)"></app-shipment>
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>

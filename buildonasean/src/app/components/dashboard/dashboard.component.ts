@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
-import { Hospital, Inventory } from '../../shared/interfaces';
+import { Hospital, Inventory, Shipment } from '../../shared/interfaces';
 import { APIService } from '../../core/http/api.service';
 import { LoginService } from 'src/app/core/authentication/authentication.service';
 
@@ -30,6 +30,7 @@ export class DashboardComponent implements OnInit {
   );
 
   selected: Set<string> = new Set();
+  upcomingShipments: Shipment[]
   columnsToDisplay = ['name', 'qty', 'days_left'];
   hospitals: Array<Hospital> = []
   admin: boolean = false;
@@ -80,4 +81,9 @@ export class DashboardComponent implements OnInit {
       this.selected = new Set(this.selected);
     }
   } 
+
+  onShipment(shipments: Shipment[]) {
+    this.upcomingShipments = shipments.slice();
+    console.log(this.upcomingShipments);
+  }
 }

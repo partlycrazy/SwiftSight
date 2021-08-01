@@ -37,6 +37,8 @@ app.get('/api/suppliers/by_product/:itemID', db.getSuppliersByItemIdTest);
 
 app.get('/api/suppliers/by_category/:CategoryId', db.getSuppliersByCategoryId);
 
+app.get('/api/suppliers/delivery/:hospital_id/:category_id', db.getSuppliersByAvgDeliveryTime);
+
 app.get('/api/inventory/by_product/:hospital_id/:date', db.getProductInventoryByHospitalIdTest);
 
 app.get('/api/inventory/by_category/:hospital_id/:date', db.getCategoryInventoryByHospitalIdTest);
