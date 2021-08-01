@@ -474,5 +474,6 @@ module.exports = {
     getBurnOutRatePerDayPerPatient,
     getDaysLeftByHospitalId,
     getSuppliersByAvgDeliveryTime,
-    updateShipment
+    updateShipment,
+    getPatientCount
 }
