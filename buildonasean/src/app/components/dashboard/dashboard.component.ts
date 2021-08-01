@@ -57,14 +57,21 @@ export class DashboardComponent implements OnInit, OnChanges {
     this.activeHospital.items = new Array<Inventory>();
     let results: any[] = await this.APIService.getInventory(this.activeHospital.id, new Date().toISOString()).toPromise();
     let daysLeft: any[] = await this.APIService.getDaysLeft(this.activeHospital.id).toPromise();
-
+    console.log(daysLeft);
+    console.log(results);
     let itemsArray: Inventory[] = []
     for (let i = 0; i < results.length; i++) {
+      let d_left = daysLeft.find(e => e.category_id === results[i].category_id);
+      
+      let days_left = 0;
+      if (d_left) {
+        days_left = d_left.daysleft;
+      }
       let newItem: Inventory = {
         id: results[i].category_id,
         name: results[i].category_title,
         qty: results[i].total,
-        days_left: daysLeft[i].daysleft
+        days_left: days_left
       }
       itemsArray.push(newItem);
     }

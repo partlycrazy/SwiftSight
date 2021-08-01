@@ -105,7 +105,9 @@ export class PatientComponent implements OnInit, AfterViewInit {
     let results: any = await this.APIService.getNonICUPatients(this.hospital_id).toPromise();
     this.nonICUCount = results[0].patients;
     this.nonICUData.push(this.nonICUCount);
-    this.nonICUData.push(this.nonICUBeds - this.nonICUCount);
+    let bedAvailable = this.nonICUBeds - this.nonICUCount
+    if (bedAvailable < 0) bedAvailable = 0
+    this.nonICUData.push(bedAvailable);
 
     let occupancyRate: any = this.nonICUCount / this.nonICUBeds * 100;
     let newOptions = this.defaultOptions
@@ -116,7 +118,10 @@ export class PatientComponent implements OnInit, AfterViewInit {
     results = await this.APIService.getICUPatients(this.hospital_id).toPromise();
     this.ICUCount = results[0].patients;
     this.ICUData.push(this.ICUCount);
-    this.ICUData.push(this.ICUBeds - this.ICUCount);
+    let ICUBedAvailable = this.ICUBeds - this.ICUCount
+    if (ICUBedAvailable < 0) ICUBedAvailable = 0
+    console.log(this.ICUBeds);
+    this.ICUData.push(ICUBedAvailable);
     occupancyRate = this.ICUCount / this.ICUBeds * 100;
     newOptions.elements.center.text = parseFloat(occupancyRate).toFixed(2)+"%";
     newOptions.title.text = "ICU Beds";

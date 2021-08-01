@@ -128,9 +128,6 @@ export class BurnrateComponent implements OnInit, OnChanges {
       }
       this.burnrateData.push(newBurnrate);
     }
-
-
-
   }
 
   renderChart() {
@@ -156,9 +153,11 @@ export class BurnrateComponent implements OnInit, OnChanges {
         let currentQty: any = dataGroup.data[dataGroup.data.length - 1];
         predDataArray.push(currentQty);
 
-        let daysLeft = this.burnrateData.find((item) => item.category_name === dataGroup.label).days_left;
-        let delta = currentQty / daysLeft;
-
+        let daysLeft = this.burnrateData.find((item) => item.category_name === dataGroup.label);
+        let delta = 0;
+        if (daysLeft) {
+          delta = currentQty / daysLeft.days_left;
+        }
         for (let i = 0; i < 7; i++) {
           let newShipment = this.upcomingShipments.filter(shipment => shipment.estimated_delivery === i);
           if (newShipment.length > 0) {
