@@ -163,7 +163,7 @@ export class BurnrateComponent implements OnInit, OnChanges {
           let newShipment = this.upcomingShipments.filter(shipment => shipment.estimated_delivery === i);
           if (newShipment.length > 0) {
             for (let j = 0; j < newShipment.length; j++) {
-              let addItem = newShipment[j].items.filter(e => e.category_name === dataGroup.label);
+              let addItem = newShipment[j].items.filter(e => e.category_name === dataGroup.label && !e.shipped);
               for (let k = 0; k < addItem.length; k++) {
                 currentQty += Number(addItem[k].production);
               }
@@ -189,7 +189,12 @@ export class BurnrateComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.renderChart();
+    if (changes.upcomingShipments) {
+      this.fetchChartData();
+    } else {
+      this.renderChart();
+    }
+   
   }
 
   ngOnDestroy() {
@@ -198,6 +203,7 @@ export class BurnrateComponent implements OnInit, OnChanges {
 
   async fetchChartData() {
     let result = await this.APIService.getChartData(this.hospital_id, 7).toPromise();
+    this.lineChartLabels = [];
     let chartData: any[] = []
     result.forEach((res) => {
       let exist = chartData.filter((e: any) => e.label === res.category_title);
@@ -231,7 +237,7 @@ export class BurnrateComponent implements OnInit, OnChanges {
       this.lineChartLabels.push(dateLabel.toDateString());
     })
 
-    this.lineChartLabels = this.lineChartLabels.concat(this.generateDates(new Date('2020-08-08 04:00:00'), 7))
+    this.lineChartLabels = this.lineChartLabels.concat(this.generateDates(7))
 
 
     chartData.forEach(cData => {
@@ -242,12 +248,13 @@ export class BurnrateComponent implements OnInit, OnChanges {
     this.renderChart();
   }
 
-  generateDates(start: Date, amount: number): string[] {
+  generateDates(amount: number): string[] {
     let dateArray: string[] = [];
-    for (let i = 0; i < amount; i++) {
-      let newDate = this.deltaDate(start, i, dateAmountType.DAYS);
+    for (let i = 1; i < amount; i++) {
+      let newDate = this.deltaDate(new Date(), i, dateAmountType.DAYS);
       dateArray.push(newDate.toDateString());
     }
+    console.log(dateArray);
     return dateArray;
   }
 

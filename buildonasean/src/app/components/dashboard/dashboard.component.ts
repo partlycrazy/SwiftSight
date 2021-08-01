@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 import { Hospital, Inventory, Shipment } from '../../shared/interfaces';
@@ -11,7 +11,7 @@ import { LoginService } from 'src/app/core/authentication/authentication.service
   styleUrls: ['./dashboard.component.css'],
   providers: [APIService]
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnChanges {
   /** Based on the screen size, switch from standard to one column per row */
   cards = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
     map(({ matches }) => {
@@ -46,6 +46,10 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void { 
+    this.updateInventory();
+  }
+
+  ngOnChanges(): void {
     this.updateInventory();
   }
 
@@ -84,6 +88,6 @@ export class DashboardComponent implements OnInit {
 
   onShipment(shipments: Shipment[]) {
     this.upcomingShipments = shipments.slice();
-    console.log(this.upcomingShipments);
+    this.updateInventory();
   }
 }

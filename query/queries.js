@@ -395,6 +395,39 @@ const getChartData = (request, response) => {
                 })
 }
 
+const updateShipment = async (request, response) => {
+    const order_id = request.body.order_id;
+    const updateTable = []
+
+    for (i = 0; i < request.body.items.length; i++) {
+        let newUpdate = {
+            fulfilled: request.body.items[i].shipped,
+            product_id: request.body.items[i].product_id
+        }
+        updateTable.push(newUpdate)
+    }
+
+    outputArr = []
+
+    for (i = 0; i < updateTable.length; i++) {
+        let time_fulfilled = updateTable[i].fulfilled ? new Date().toISOString() : null;
+
+        let outcome = await pool.query(`UPDATE supply_orders SET fulfilled = $1, time_fulfilled = $2
+                    WHERE order_id = $3 AND product_id = $4`,
+            [updateTable[i].fulfilled, time_fulfilled, order_id, updateTable[i].product_id])
+
+        outputArr.push(true)
+    }
+
+    while (true) {
+        if (outputArr.length === updateTable.length) {
+            response.status(200).json("Update Successful")
+            return;
+        }
+    }
+
+}
+
 module.exports = {
     getAllHospitals,
     getHospital,
@@ -412,5 +445,6 @@ module.exports = {
     getChartData,
     getBurnOutRatePerDayPerPatient,
     getDaysLeftByHospitalId,
-    getSuppliersByAvgDeliveryTime
+    getSuppliersByAvgDeliveryTime,
+    updateShipment
 }

@@ -6,7 +6,6 @@ require('dotenv').config();
 const
   express = require('express'),
   body_parser = require('body-parser'),
-  http = require('http'),
   cors = require('cors'),
   db = require('./query/queries');
 
@@ -14,6 +13,8 @@ const
 var app = express();
 
 app.use(cors());
+app.use(body_parser.urlencoded({ extended: false }));
+app.use(body_parser.json());
 
 app.listen(process.env.PORT || 3000, process.env.IP_ADDR || "192.168.1.172", () => console.log('server is listening'));
 
@@ -46,3 +47,5 @@ app.get('/api/inventory/by_category/:hospital_id/:date', db.getCategoryInventory
 app.get('/api/inventory/burn/:hospital_id', db.getDaysLeftByHospitalId);
 
 app.get('/api/chart/:hospital_id/:days', db.getChartData)
+
+app.post('/api/shipments/update', db.updateShipment)

@@ -68,7 +68,7 @@ export class ShipmentComponent implements OnInit {
         category_id: results[i].category_id,
         category_name: results[i].category_title,
         production: results[i].quantity,
-        shipped: false
+        shipped: results[i].fulfilled
       }
 
       if (exist.length == 0) {
@@ -120,10 +120,41 @@ export class ShipmentComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: Shipment) => {
       if (result === undefined) return;
+      let oldShipment = this.dataSource.data.find(obj => obj.order_id === result.order_id);
+      let difference = this.getItemDifference(oldShipment.items, result.items);
+      console.log(difference);
       this.dataSource.data = this.dataSource.data.map(obj => (result.order_id === obj.order_id) ? result : obj);
+
+      let updateShipment: Shipment = {
+        order_id: result.order_id,
+        items: difference
+      }
+      this.updateShipment(updateShipment);
+      
     })
   }
+
+  async updateShipment(body: Shipment) {
+    let result: any = await this.APIService.updateShipment(body).toPromise();
+    if (result === "Update Successful") {
+      console.log(result);
+      this.upcomingShipments.emit(this.dataSource.data);
+    }
+    
+  }
+
+  getItemDifference(oldShipment: Item[], newShipment: Item[]) {
+    let output: Item[] = []
+    for (let i = 0; i < oldShipment.length; i++) {
+      if (oldShipment[i].shipped != newShipment[i].shipped) {
+        output.push(newShipment[i]);
+      }
+    }
+    return output;
+  }
 }
+
+
 
 @Component({
   selector: 'shipment-details',
