@@ -241,9 +241,10 @@ const getUpcomingShipments = (request, response) => {
         return;
     }
 
-    pool.query('SELECT order_id, supplier_name, product_id, title, time_created, quantity, category_id, category_title \
-                FROM supply_orders NATURAL JOIN products NATURAL JOIN suppliers NATURAL JOIN categories\
-                WHERE fulfilled IS FALSE AND hospital_id = $1 AND supplier_id <> 0 \
+    pool.query('SELECT order_id, supplier_name, product_id, title, time_created, quantity, category_id, category_title, fulfilled \
+                FROM supply_orders NATURAL JOIN products NATURAL JOIN suppliers NATURAL JOIN categories \
+                WHERE hospital_id = $1 AND supplier_id <> 0 AND \
+                order_id IN (SELECt DISTINCT order_id FROM supply_orders WHERE fulfilled IS FALSE) \
                 ORDER BY time_created ASC', [hospital_id], (err, results) => {
         if(err) {
             console.log(err);
