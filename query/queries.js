@@ -241,9 +241,10 @@ const getUpcomingShipments = (request, response) => {
         return;
     }
 
-    pool.query('SELECT order_id, supplier_name, product_id, title, time_created, quantity, category_id, category_title \
-                FROM supply_orders NATURAL JOIN products NATURAL JOIN suppliers NATURAL JOIN categories\
-                WHERE fulfilled IS FALSE AND hospital_id = $1 AND supplier_id <> 0 \
+    pool.query('SELECT order_id, supplier_name, product_id, title, time_created, quantity, category_id, category_title, fulfilled \
+                FROM supply_orders NATURAL JOIN products NATURAL JOIN suppliers NATURAL JOIN categories \
+                WHERE hospital_id = $1 AND supplier_id <> 0 AND \
+                order_id IN (SELECt DISTINCT order_id FROM supply_orders WHERE fulfilled IS FALSE) \
                 ORDER BY time_created ASC', [hospital_id], (err, results) => {
         if(err) {
             console.log(err);
@@ -285,11 +286,17 @@ const getBurnOutRatePerDayPerPatient = (request, response) => {
     }
 
     pool.query(`SELECT category_id, category_title, burnrateperday/patients AS burnrate \
-                FROM (SELECT DISTINCT hospital_id, SUM(quantity) OVER (PARTITION BY hospital_id) AS patients \ 
+                FROM (SELECT DISTINCT hospital_id, (SUM(case when time_fulfilled < current_timestamp then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '1 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '2 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '3 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '4 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '5 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '6 days' then quantity else 0 end) OVER (PARTITION BY hospital_id)) / 7 AS patients \
                 FROM supply_orders WHERE product_id IN (0,1)) AS patientcount \
                 NATURAL JOIN (SELECT DISTINCT hospital_id, category_id, (SUM(quantity) OVER (PARTITION BY hospital_id, category_id))/-7 AS burnRatePerDay \
                 FROM (SELECT * FROM (SELECT * FROM supply_orders WHERE quantity < 0 AND fulfilled IS TRUE AND supplier_id = 0 \
-                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '7 days')) AS temp3) AS temp \
+                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '6 days')) AS temp3) AS temp \
                 NATURAL JOIN products) AS temp2 NATURAL JOIN categories \
                 WHERE hospital_id = $1`, [hospital_id], (err, results) => {
         if(err) {
@@ -310,17 +317,27 @@ const getDaysLeftByHospitalId = (request, response) => {
         return;
     }
 
-    pool.query(`SELECT category_id, category_title, ROUND(total/burnRatePerDay) AS daysLeft\
-                FROM (SELECT DISTINCT category_id, category_title, SUM(quantity) OVER (PARTITION BY category_id) AS total \
+    pool.query(`SELECT category_id, category_title, ROUND(total/burnrate) AS daysLeft \
+                FROM (SELECT DISTINCT hospital_id, category_id, category_title, \
+                SUM(quantity) OVER (PARTITION BY category_id, hospital_id) AS total \ 
                 FROM (SELECT * FROM supply_orders WHERE fulfilled IS TRUE) AS orders \
-                LEFT JOIN (SELECT * FROM products natural JOIN categories) AS product_category \
+                LEFT JOIN (SELECT * FROM products natural JOIN categories) AS product_category \ 
                 ON orders.product_id = product_category.product_id \
-                WHERE category_id <> 0) as inventories\
+                WHERE category_id <> 0 and hospital_id = $1) as inventories \
+                NATURAL JOIN (SELECT hospital_id, category_id, category_title, burnrateperday/patients*currentPatients AS burnrate \
+                FROM (SELECT DISTINCT hospital_id, SUM(quantity) OVER (PARTITION BY hospital_id) AS currentPatients, \
+                (SUM(case when time_fulfilled < current_timestamp then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '1 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '2 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '3 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '4 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '5 days' then quantity else 0 end) OVER (PARTITION BY hospital_id) + \
+                SUM(case when time_fulfilled < current_timestamp - interval '6 days' then quantity else 0 end) OVER (PARTITION BY hospital_id)) / 7 AS patients \
+                FROM supply_orders WHERE product_id IN (0,1) and hospital_id = $1) AS patientcount \
                 NATURAL JOIN (SELECT DISTINCT hospital_id, category_id, (SUM(quantity) OVER (PARTITION BY hospital_id, category_id))/-7 AS burnRatePerDay \
                 FROM (SELECT * FROM (SELECT * FROM supply_orders WHERE quantity < 0 AND fulfilled IS TRUE AND supplier_id = 0 \
-                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '7 days')) AS temp3) AS temp \
-                NATURAL JOIN products) AS temp2 NATURAL JOIN categories \
-                WHERE hospital_id = $1`, [hospital_id], (err, results) => {
+                AND product_id NOT IN (0,1) AND time_fulfilled > (CURRENT_TIMESTAMP - INTERVAL '6 days') and hospital_id = $1) AS temp3) AS temp \
+                NATURAL JOIN products) as temp2 natural join categories) as temp4`, [hospital_id], (err, results) => {
         if(err) {
             console.log(err);
             response.status(400).json("ERROR");
