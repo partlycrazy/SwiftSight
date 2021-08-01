@@ -350,6 +350,31 @@ const getDaysLeftByHospitalId = (request, response) => {
     })
 }
 
+// api/inventory/burn/:hospital_id
+const getPatientCount = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query(`SELECT distinct SUM(case when product_id = 0 then quantity else 0 end) OVER (PARTITION BY hospital_id) AS currentNonICUPatients, \
+                SUM(case when time_fulfilled < current_timestamp - interval '1 days' and product_id = 0 then quantity else 0 end) \
+                OVER (PARTITION BY hospital_id) AS ytdNonICUPatients, \
+                SUM(case when product_id = 1 then quantity else 0 end) OVER (PARTITION BY hospital_id) AS currentICUPatients, \
+                SUM(case when time_fulfilled < current_timestamp - interval '1 days' and product_id = 1 then quantity else 0 end) \
+                OVER (PARTITION BY hospital_id) AS ytdICUPatients \
+                FROM supply_orders WHERE hospital_id = $1 and fulfilled IS TRUE`, [hospital_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+            return
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
 // api/suppliers/delivery/:hospital_id/:category_id
 const getSuppliersByAvgDeliveryTime = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
@@ -449,5 +474,6 @@ module.exports = {
     getBurnOutRatePerDayPerPatient,
     getDaysLeftByHospitalId,
     getSuppliersByAvgDeliveryTime,
-    updateShipment
+    updateShipment,
+    getPatientCount
 }
