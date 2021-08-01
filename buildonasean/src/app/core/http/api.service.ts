@@ -19,7 +19,7 @@ export class APIService {
 
   getHospital(hospital_id: number)
   {
-    return this.http.get<any[]>(`http://192.168.1.172:3000/api/hospitals/${hospital_id}`);
+    return this.http.get<any[]>(`http://54.151.176.214:3000/api/hospitals/${hospital_id}`);
   }
 
   getInventory(hospitalId:Number, date: String) 
@@ -29,7 +29,7 @@ export class APIService {
 
   getDaysLeft(hospital_id: number)
   {
-    return this.http.get<any[]>(`http://192.168.1.172:3000/api/inventory/burn/${hospital_id}`);
+    return this.http.get<any[]>(`http://54.151.176.214:3000/api/inventory/burn/${hospital_id}`);
   }
 
   getNonICUPatients(hospitalId: Number)
@@ -60,7 +60,12 @@ export class APIService {
 
   getChartData(hospital_id: number, days: number): Observable<any[]>
   {
-    return this.http.get<any[]>(`http://192.168.1.172:3000/api/chart/${hospital_id}/7`);
+    return this.http.get<any[]>(`http://54.151.176.214:3000/api/chart/${hospital_id}/7`);
   } 
+
+  getUpcomingShipments(hospital_id: number)
+  {
+    return this.http.get<any[]>(`http://192.168.1.172:3000/api/shipments/upcoming/${hospital_id}`);
+  }
 
 }

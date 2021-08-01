@@ -24,8 +24,8 @@
     </mat-grid-tile>   
   </mat-grid-list>
   
-  <mat-grid-list cols="5" rowHeight="350px">
-    <mat-grid-tile [colspan]="2" [rowspan]="3">
+  <mat-grid-list cols="5" rowHeight="400px">
+    <mat-grid-tile [colspan]="2" [rowspan]="2">
       <mat-card class="dashboard-card">        
         <mat-card-header>
           <mat-card-title>
@@ -60,7 +60,8 @@
                   (click)="selectInventory(row)"
                   [class.is-clicked]="selected.has(row.name)"
                   *matRowDef="let row; columns: columnsToDisplay;"
-              ></tr>
+              >
+            </tr>
             </table>
           </div>
         </mat-card-content>
@@ -78,7 +79,7 @@
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>
-    <mat-grid-tile [colspan]="3" [rowspan]="1">
+    <mat-grid-tile [colspan]="5" [rowspan]="2">
       <mat-card class="dashboard-card">        
         <mat-card-header>
           <mat-card-title>
@@ -86,6 +87,7 @@
           </mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
+          <app-shipment [hospital_id]="activeHospital.id"></app-shipment>
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>

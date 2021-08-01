@@ -241,8 +241,8 @@ const getUpcomingShipments = (request, response) => {
         return;
     }
 
-    pool.query('SELECT supplier_name, title, time_created, quantity \
-                FROM supply_orders NATURAL JOIN products NATURAL JOIN suppliers \
+    pool.query('SELECT order_id, supplier_name, product_id, title, time_created, quantity, category_id, category_title \
+                FROM supply_orders NATURAL JOIN products NATURAL JOIN suppliers NATURAL JOIN categories\
                 WHERE fulfilled IS FALSE AND hospital_id = $1 AND supplier_id <> 0 \
                 ORDER BY time_created ASC', [hospital_id], (err, results) => {
         if(err) {
@@ -340,8 +340,6 @@ const getChartData = (request, response) => {
         return;
     }
 
-    console.log(days);
-    console.log(hospital_id);
     pool.query(`SELECT categories.category_title, new_table.* FROM (SELECT order_id, time_fulfilled as datetime, hospital_id, category_id,  \
                 SUM(quantity) OVER (PARTITION BY hospital_id, category_id ORDER BY time_fulfilled ROWS UNBOUNDED PRECEDING) AS total \
                 FROM supply_orders NATURAL JOIN products \

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
 import { Color, BaseChartDirective, Label } from 'ng2-charts';
 import { APIService } from 'src/app/core/http/api.service';
@@ -24,7 +24,6 @@ export class BurnrateComponent implements OnInit, OnChanges {
   public lineChartOptions: (ChartOptions & { annotation: any }) = {
     responsive: true,
     scales: {
-      // We use this empty structure as a placeholder for dynamic theming.
       xAxes: [{
         gridLines: {
           color: 'darkgrey'
@@ -62,8 +61,6 @@ export class BurnrateComponent implements OnInit, OnChanges {
     },
     tooltips: {
       filter: function (tooltip) {
-        // console.log(tooltip);
-        // return true;
         return tooltip.datasetIndex % 2 != 1;
       }
     }
@@ -181,7 +178,6 @@ export class BurnrateComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
     this.renderChart();
   }
 

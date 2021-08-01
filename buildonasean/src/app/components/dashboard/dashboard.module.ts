@@ -8,6 +8,8 @@ import { ChartsModule } from 'ng2-charts';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { PatientComponent } from './patients/patient.component';
+import { ShipmentComponent } from './shipment/shipment.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
   imports: [
@@ -15,9 +17,10 @@ import { PatientComponent } from './patients/patient.component';
     SharedModule,
     ChartsModule,
     FormsModule,
-    MatSelectModule
+    MatSelectModule,
+    MatPaginatorModule
   ],
   providers: [],
-  declarations: [DashboardComponent, BurnrateComponent, PatientComponent]
+  declarations: [DashboardComponent, BurnrateComponent, PatientComponent, ShipmentComponent]
 })
 export class DashboardModule { }

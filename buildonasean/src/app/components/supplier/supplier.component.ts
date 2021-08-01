@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren, QueryList } from '@angular/core';
 import { APIService} from "../../core/http/api.service"
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Hospital, Inventory, Item, Supplier } from '../../shared/interfaces';
+import { Hospital, Inventory, Supplier } from '../../shared/interfaces';
 import { MatPaginator } from '@angular/material/paginator';
 import { LoginService } from '../../core/authentication/authentication.service';
 import { MatTable, MatTableDataSource } from '@angular/material/table';

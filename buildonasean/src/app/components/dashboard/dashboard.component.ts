@@ -67,8 +67,6 @@ export class DashboardComponent implements OnInit {
     let sortedItemsArray = itemsArray.sort((item1, item2) => item1.days_left - item2.days_left);
 
     this.activeHospital.items = sortedItemsArray;
-
-    console.log(this.activeHospital.items[0]);
     this.selected = new Set();
     this.selectInventory(this.activeHospital.items[0]);
   }
