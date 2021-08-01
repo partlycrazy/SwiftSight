@@ -78,11 +78,18 @@ export class SupplierComponent implements OnInit, AfterViewInit {
     let daysLeft: any[] = await this.APIService.getDaysLeft(this.activeHospital.id).toPromise();
 
     for (let i = 0; i < results.length; i++) {
+      let d_left = daysLeft.find(e => e.category_id === results[i].category_id);
+      
+      let days_left = 0;
+      if (d_left) {
+        days_left = d_left.daysleft;
+      }
+
       let newItem: Inventory = {
         id: results[i].category_id,
         name: results[i].category_title,
         qty: results[i].total,
-        days_left: daysLeft[i].daysleft
+        days_left: days_left
       }
       this.activeHospital.items = [...this.activeHospital.items, newItem]
     }

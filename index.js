@@ -34,6 +34,8 @@ app.get('/api/patients/non_icu/:hospital_id', db.getCurrentNonICUOccupancyNumber
 
 app.get('/api/patients/icu/:hospital_id', db.getCurrentICUOccupancyNumber)
 
+app.get('/api/patients/count/:hospital_id', db.getPatientCount);
+
 app.get('/api/suppliers/by_product/:itemID', db.getSuppliersByItemIdTest);
 
 app.get('/api/suppliers/by_category/:CategoryId', db.getSuppliersByCategoryId);

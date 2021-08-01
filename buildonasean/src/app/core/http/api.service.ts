@@ -43,6 +43,11 @@ export class APIService {
     return this.http.get<number[]>(`http://54.151.176.214:3000/api/patients/icu/${hospitalId}`)
   }
 
+  getPatientCount(hospital_id: number)
+  {
+    return this.http.get<number[]>(`http://192.168.1.172:3000/api/patients/count/${hospital_id}`);
+  }
+
   getSuppliers(): Observable<Supplier[]>
   {
     //return this.http.get<Supplier[]>(`http://101.100.160.114:3000/api/suppliers`);

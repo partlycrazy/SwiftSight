@@ -1,7 +1,6 @@
-import { BoundElementProperty } from '@angular/compiler';
-import { AfterViewInit, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Chart, ChartDataSets, ChartOptions, ChartType } from 'chart.js';
-import { BaseChartDirective, Color, Label, MultiDataSet, SingleDataSet } from 'ng2-charts';
+import { BaseChartDirective, Color, Label, SingleDataSet } from 'ng2-charts';
 import { APIService } from 'src/app/core/http/api.service';
 
 
@@ -11,7 +10,7 @@ import { APIService } from 'src/app/core/http/api.service';
   styleUrls: ['./patient.component.css']
 })
 
-export class PatientComponent implements OnInit, AfterViewInit {
+export class PatientComponent implements OnInit {
 
   @Input() hospital_id: number
   
@@ -85,11 +84,18 @@ export class PatientComponent implements OnInit, AfterViewInit {
   ]
   public chartType: ChartType = 'doughnut';
 
-  public nonICUCount: number = 0;
+  public currentNonICUCount: number = 0;
+  public ytdNonICUCount: number = 0;
+  
   public nonICUBeds: number = 0;
-  public ICUCount: number = 0;
+  public currentICUCount: number = 0;
+  public ytdICUCount: number = 0;
   public ICUBeds: number = 0;
   
+  public nonICUCount: number = 0;
+  //public nonICUBeds: number = 0;
+  public ICUCount: number = 0;
+  //public ICUBeds: number = 0;
 
   constructor(private APIService: APIService) { }
 
@@ -102,36 +108,41 @@ export class PatientComponent implements OnInit, AfterViewInit {
     this.nonICUBeds = hospital[0].max_patient_capacity;
     this.ICUBeds = hospital[0].max_icu_patient_capacity;
 
-    let results: any = await this.APIService.getNonICUPatients(this.hospital_id).toPromise();
-    this.nonICUCount = results[0].patients;
-    this.nonICUData.push(this.nonICUCount);
-    let bedAvailable = this.nonICUBeds - this.nonICUCount
+    let results: any = await this.APIService.getPatientCount(this.hospital_id).toPromise();
+
+    console.log(results);
+
+    this.currentNonICUCount = results[0].currentnonicupatients;
+    this.currentICUCount = results[0].currenticupatients;
+    this.ytdNonICUCount = results[0].ytdnonicupatients;
+    this.ytdICUCount = results[0].ytdicupatients;
+
+    this.nonICUData.push(this.currentNonICUCount);
+    let bedAvailable = this.nonICUBeds - this.currentNonICUCount
     if (bedAvailable < 0) bedAvailable = 0
     this.nonICUData.push(bedAvailable);
 
-    let occupancyRate: any = this.nonICUCount / this.nonICUBeds * 100;
+    
+
+    let occupancyRate: any = this.currentNonICUCount / this.nonICUBeds * 100;
     let newOptions = this.defaultOptions
     newOptions.elements.center.text = parseFloat(occupancyRate).toFixed(2)+"%";
-    this.nonICUOptions = newOptions;
-    
-    
-    results = await this.APIService.getICUPatients(this.hospital_id).toPromise();
-    this.ICUCount = results[0].patients;
-    this.ICUData.push(this.ICUCount);
-    let ICUBedAvailable = this.ICUBeds - this.ICUCount
-    if (ICUBedAvailable < 0) ICUBedAvailable = 0
-    console.log(this.ICUBeds);
-    this.ICUData.push(ICUBedAvailable);
-    occupancyRate = this.ICUCount / this.ICUBeds * 100;
-    newOptions.elements.center.text = parseFloat(occupancyRate).toFixed(2)+"%";
-    newOptions.title.text = "ICU Beds";
-    this.ICUOptions = newOptions    
+    newOptions.title.text = "Non-ICU Beds";
+    this.nonICUOptions = newOptions;    
+
+    setTimeout(() => {
+      this.ICUData.push(this.currentICUCount);
+      let ICUBedAvailable = this.ICUBeds - this.currentICUCount
+      if (ICUBedAvailable < 0) ICUBedAvailable = 0
+      console.log(this.ICUBeds);
+      this.ICUData.push(ICUBedAvailable);
+      occupancyRate = this.currentICUCount / this.ICUBeds * 100;
+      newOptions.elements.center.text = parseFloat(occupancyRate).toFixed(2)+"%";
+      newOptions.title.text = "ICU Beds";
+      this.ICUOptions = newOptions   
+    })    
+  
   }
-
-  ngAfterViewInit() {  }
-
-
-
 }
 
 Chart.pluginService.register({

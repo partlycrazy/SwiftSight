@@ -57,6 +57,11 @@
     font-size: 20px;
     text-align: center;
 }
+
+.mat-header-cell {
+  background-color: #34495E;
+  color: white;
+}
   
 .mat-column-qty {
     padding-left: 16px;

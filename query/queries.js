@@ -350,7 +350,7 @@ const getDaysLeftByHospitalId = (request, response) => {
     })
 }
 
-// api/inventory/burn/:hospital_id
+// api/patients/change/:hospital_id
 const getPatientCount = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
 
