@@ -330,6 +330,37 @@ const getDaysLeftByHospitalId = (request, response) => {
     })
 }
 
+// api/shipment/past/:hospital_id/:category_id
+const getSuppliersByAvgDeliveryTime = (request, response) => {
+    const hospital_id = parseInt(request.params.hospital_id);
+
+    if (isNaN(hospital_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    const category_id = parseInt(request.params.category_id);
+
+    if (isNaN(category_id)) {
+        response.status(400).json("ERROR NOT INT");
+        return;
+    }
+
+    pool.query(`SELECT DISTINCT supplier_id, AVG(time_fulfilled - time_created) OVER (PARTITION BY supplier_id) AS time_taken \
+                FROM (SELECT * FROM supply_orders \
+                WHERE product_id NOT IN (0,1) AND supplier_id <> 0 AND quantity > 0 \
+                AND fulfilled IS TRUE AND hospital_id = $1) AS supplies \
+                NATURAL JOIN (products NATURAL JOIN categories) WHERE category_id = $2 \
+                ORDER BY time_taken ASC`, [hospital_id, category_id], (err, results) => {
+        if(err) {
+            console.log(err);
+            response.status(400).json("ERROR");
+            return
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
 // api/chart/:hospital_id/:days
 const getChartData = (request, response) => {
     const hospital_id = parseInt(request.params.hospital_id);
@@ -373,5 +404,6 @@ module.exports = {
     getProductInventoryByHospitalIdTest,
     getChartData,
     getBurnOutRatePerDayPerPatient,
-    getDaysLeftByHospitalId
+    getDaysLeftByHospitalId,
+    getSuppliersByAvgDeliveryTime
 }
